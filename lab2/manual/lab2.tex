@@ -1,0 +1,557 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{PTF55F.ttf}[BoldFont=PTF75F.ttf,ItalicFont=PTF56F.ttf,BoldItalicFont=PTF76F.ttf]
+\setsansfont{PTS55F.ttf}[BoldFont=PTS75F.ttf,ItalicFont=PTS56F.ttf,BoldItalicFont=PTS76F.ttf]
+\setmonofont{PTM55F.ttf}[Scale=0.92]
+\usepackage[russian]{babel}
+\AtBeginDocument{\shorthandoff{"}}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{minted}
+\usepackage[most,minted]{tcolorbox}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{3em}
+\setlength{\parskip}{0.55em}
+\setlist{itemsep=0.15em,topsep=0.3em}
+\titleformat{\section}{\Large\sffamily\bfseries}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\sffamily\bfseries}{\thesubsubsection}{0.6em}{}
+
+\definecolor{codebg}{HTML}{F6F7F9}
+
+% Листинги: minted (нужен pygmentize и tectonic -Z shell-escape).
+\usemintedstyle{friendly}
+% Пробелы в листингах выводятся настоящим глифом U+0020, чтобы отступы
+% сохранялись при копировании кода из PDF.
+\newcommand{\copyspace}{\XeTeXglyph\XeTeXcharglyph"0020\relax}
+\tcbset{codebox/.style={listing only, breakable, enhanced, colback=codebg, frame hidden,
+  arc=1pt, left=4pt, right=4pt, top=1pt, bottom=1pt, before skip=0.5em, after skip=0.6em}}
+\newtcblisting{py}{codebox, listing engine=minted, minted language=python, minted options={fontsize=\small,breaklines,tabsize=4,showspaces,space=\copyspace}}
+\newtcblisting{shell}{codebox, listing engine=minted, minted language=console, minted options={fontsize=\small,breaklines,tabsize=4,showspaces,space=\copyspace}}
+\newtcblisting{toml}{codebox, listing engine=minted, minted language=toml, minted options={fontsize=\small,breaklines,tabsize=4,showspaces,space=\copyspace}}
+\newtcblisting{plaintext}{codebox, listing engine=minted, minted language=text, minted options={fontsize=\small,breaklines,tabsize=4,showspaces,space=\copyspace}}
+\newtcblisting{plainwide}{codebox, listing engine=minted, minted language=text, minted options={fontsize=\scriptsize,breaklines,tabsize=4,showspaces,space=\copyspace}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\begin{center}
+  {\sffamily\small Программирование на языке Python · 2 курс}\\[0.6em]
+  {\sffamily\LARGE\bfseries Лабораторная работа №2}\\[0.4em]
+  {\sffamily\Large ООП и производительность.\\ Задача «Миллиард строк» (продолжение)}
+\end{center}
+
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{Общие положения}
+
+\subsection{Цель работы}
+
+Работа продолжает лабораторную работу №1. Цель работы~— изучение объектно-ориентированного
+программирования в Python и методов измерения производительности. По итогам работы студент
+должен:
+
+\begin{itemize}
+  \item уметь проектировать классы с использованием магических методов, свойств и \code{dataclass};
+  \item уметь измерять время выполнения программы и находить узкие места с помощью профилировщика;
+  \item понимать, от чего зависит производительность программы на Python.
+\end{itemize}
+
+%=====================================================================
+\section{Объектно-ориентированное программирование}
+
+\subsection{Классы и объекты}
+
+\begin{py}
+class Point:
+    dimensions = 2                      # атрибут класса (аналог static)
+
+    def __init__(self, x: float, y: float) -> None:
+        self.x = x                      # атрибуты экземпляра создаются присваиванием
+        self.y = y
+
+    def norm(self) -> float:
+        return (self.x ** 2 + self.y ** 2) ** 0.5
+
+
+p = Point(3, 4)         # оператор new не используется
+print(p.norm())         # 5.0
+print(Point.dimensions, p.dimensions)
+\end{py}
+
+\begin{itemize}
+  \item \code{\_\_init\_\_}~— инициализатор. Перегрузка конструкторов
+        не поддерживается; вместо неё используются значения аргументов по умолчанию или
+        альтернативные конструкторы на основе \code{@classmethod}.
+  \item \code{self}~— явный аналог \code{this}. Он передаётся первым аргументом в каждый метод;
+        обращение к атрибутам выполняется только через него: \code{self.x}, а не \code{x}.
+  \item Поля в теле класса не объявляются: атрибут появляется при первом присваивании.
+        Принято создавать все атрибуты в \code{\_\_init\_\_}.
+  \item Деструктор в привычном для C++ смысле отсутствует; освобождение ресурсов выполняется
+        с помощью \code{with}.
+\end{itemize}
+
+\subsection{Инкапсуляция}
+
+Модификаторы доступа в Python отсутствуют; вместо них используются соглашения об именах:
+\begin{itemize}
+  \item \code{self.name}~— публичный атрибут (public);
+  \item \code{self.\_name}~— внутренний атрибут (protected), не предназначенный для использования вне класса.
+        Технически он доступен, но обращение к нему извне считается нарушением соглашения;
+  \item \code{self.\_\_name}~— приватный атрибут (private); использование из вне через прямое имя
+        невозможно~— имя атрибута подвергается искажению (name mangling) в \code{\_Class\_\_name}
+        для предотвращения конфликтов имён в подклассах. Применяется редко.
+\end{itemize}
+
+Вместо пар методов \code{getX()/setX()} используются \textbf{свойства} (properties): для внешнего кода
+свойство выглядит как обычный атрибут, но при обращении к нему вызывается метод.
+
+\begin{py}
+class Temperature:
+    def __init__(self, celsius: float) -> None:
+        self.celsius = celsius          # вызывается сеттер, определённый ниже
+
+    @property
+    def celsius(self) -> float:
+        return self._celsius
+
+    @celsius.setter
+    def celsius(self, value: float) -> None:
+        if value < -273.15:
+            raise ValueError("температура ниже абсолютного нуля")
+        self._celsius = value
+
+    @property
+    def fahrenheit(self) -> float:      # свойство только для чтения
+        return self._celsius * 9 / 5 + 32
+
+
+t = Temperature(20)
+t.celsius = 25          # проверка выполняется в сеттере
+print(t.fahrenheit)     # 77.0
+# t.fahrenheit = 0      # AttributeError: сеттер не определён
+\end{py}
+
+\subsection{Магические методы}
+
+Методы, имена которых начинаются и заканчиваются двойным подчёркиванием (\emph{dunder}-методы),
+вызываются интерпретатором при участии объекта во встроенных операциях. Механизм аналогичен
+перегрузке операторов в C++, но охватывает более широкий круг операций: преобразование в строку,
+получение длины, итерацию, проверку вхождения и~т.\,д.
+
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}l>{\ttfamily}lX@{}}
+\toprule
+\textrm{\textbf{Метод}} & \textrm{\textbf{Вызывается при}} & \textbf{Аналог в C++} \\
+\midrule
+\_\_repr\_\_(self) & repr(x), в REPL, в отладчике & --- \\
+\_\_str\_\_(self) & str(x), print(x), f"\{x\}" & \code{operator<<} \\
+\_\_eq\_\_(self, other) & x == y & \code{operator==} \\
+\_\_lt\_\_(self, other) & x < y, sorted() & \code{operator<} \\
+\_\_hash\_\_(self) & ключ dict, элемент set & \code{std::hash} \\
+\_\_len\_\_(self) & len(x) & \code{size()} \\
+\_\_getitem\_\_(self, i) & x[i] & \code{operator[]} \\
+\_\_setitem\_\_(self, i, v) & x[i] = v & \code{operator[]} (lvalue) \\
+\_\_contains\_\_(self, v) & v in x & --- \\
+\_\_iter\_\_(self) & for v in x & \code{begin()/end()} \\
+\_\_add\_\_(self, other) & x + y & \code{operator+} \\
+\_\_iadd\_\_(self, other) & x += y & \code{operator+=} \\
+\_\_mul\_\_(self, other) & x * y & \code{operator*} \\
+\_\_bool\_\_(self) & if x: & \code{explicit operator bool} \\
+\bottomrule
+\end{tabularx}
+
+\medskip
+Пример~— вектор на плоскости:
+
+\begin{py}
+class Vec2:
+    def __init__(self, x: float = 0.0, y: float = 0.0) -> None:
+        self.x, self.y = x, y
+
+    def __repr__(self) -> str:
+        return f"Vec2({self.x!r}, {self.y!r})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Vec2):
+            return NotImplemented       # сравнение с этим типом не поддерживается
+        return self.x == other.x and self.y == other.y
+
+    def __add__(self, other: "Vec2") -> "Vec2":
+        return Vec2(self.x + other.x, self.y + other.y)
+
+    def __mul__(self, k: float) -> "Vec2":      # v * 3
+        return Vec2(self.x * k, self.y * k)
+
+    def __rmul__(self, k: float) -> "Vec2":     # 3 * v
+        return self * k
+
+    def __abs__(self) -> float:
+        return (self.x ** 2 + self.y ** 2) ** 0.5
+
+    def __iter__(self):                         # позволяет распаковку x, y = v
+        yield self.x
+        yield self.y
+
+
+v = Vec2(1, 2) + 3 * Vec2(1, 0)
+print(v)                # Vec2(4, 2)
+x, y = v
+\end{py}
+
+\begin{itemize}
+  \item \code{\_\_repr\_\_} возвращает однозначное представление объекта для разработчика,
+        в идеале~— выражение, по которому объект можно воссоздать. Метод рекомендуется
+        определять во всех классах.
+  \item Если \code{\_\_str\_\_} не определён, функция \code{print} использует \code{\_\_repr\_\_}.
+  \item При определении \code{\_\_eq\_\_} хеш-функция по умолчанию отключается, и объект
+        не может быть ключом словаря, пока не определён \code{\_\_hash\_\_}.
+  \item Ключевое слово \code{yield} превращает функцию в \emph{генератор}, выдающий значения
+        по одному по мере запроса. Это наиболее простой способ реализовать \code{\_\_iter\_\_}.
+\end{itemize}
+
+\subsection{Наследование}
+
+\begin{py}
+class Shape:
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def area(self) -> float:
+        raise NotImplementedError       # аналог чисто виртуального метода
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self.name!r}, area={self.area():.2f})"
+
+
+class Circle(Shape):
+    def __init__(self, r: float) -> None:
+        super().__init__("круг")        # вызов инициализатора базового класса
+        self.r = r
+
+    def area(self) -> float:            # переопределение метода
+        return 3.14159 * self.r ** 2
+
+
+class Square(Shape):
+    def __init__(self, a: float) -> None:
+        super().__init__("квадрат")
+        self.a = a
+
+    def area(self) -> float:
+        return self.a ** 2
+
+
+shapes = [Circle(1), Square(2)]
+print(sum(s.area() for s in shapes))
+print(isinstance(shapes[0], Shape))    # True
+\end{py}
+
+Все методы в Python ведут себя как виртуальные: вызов \code{s.area()} всегда разрешается
+по фактическому классу объекта, ключевые слова \code{virtual} и \code{override} отсутствуют.
+Поддерживается множественное наследование; порядок поиска методов (MRO) доступен через
+атрибут \code{Circle.\_\_mro\_\_}.
+
+\textbf{Утиная типизация.} Для использования объекта в функции не требуется его наследование
+от определённого класса~— достаточно наличия необходимых методов. Объект с методами
+\code{\_\_len\_\_} и \code{\_\_getitem\_\_} поддерживает \code{len()} и индексацию, объект
+с методом \code{\_\_iter\_\_}~— обход циклом \code{for}.
+
+\subsection{Методы класса и статические методы}
+
+\begin{py}
+class Date:
+    def __init__(self, year: int, month: int, day: int) -> None:
+        self.year, self.month, self.day = year, month, day
+
+    @classmethod
+    def from_string(cls, s: str) -> "Date":     # альтернативный конструктор
+        year, month, day = (int(part) for part in s.split("-"))
+        return cls(year, month, day)
+
+    @staticmethod
+    def is_leap(year: int) -> bool:             # функция в пространстве имён класса
+        return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
+
+d = Date.from_string("2026-09-01")
+Date.is_leap(2028)
+\end{py}
+
+\subsection{Классы данных и \texttt{\_\_slots\_\_}}
+
+Для классов, предназначенных преимущественно для хранения данных, декоратор \code{@dataclass}
+генерирует методы \code{\_\_init\_\_}, \code{\_\_repr\_\_} и \code{\_\_eq\_\_} по аннотациям полей:
+
+\begin{py}
+from dataclasses import dataclass, field
+
+@dataclass
+class Student:
+    name: str
+    group: int
+    grades: list[int] = field(default_factory=list)    # не grades=[]
+
+    def average(self) -> float:
+        return sum(self.grades) / len(self.grades) if self.grades else 0.0
+
+
+s = Student("Анна", 2)
+print(s)        # Student(name='Анна', group=2, grades=[])
+
+@dataclass(frozen=True)         # неизменяемый класс, получает __hash__
+class Coord:
+    lat: float
+    lon: float
+\end{py}
+
+По умолчанию атрибуты объекта хранятся в словаре \code{obj.\_\_dict\_\_}, что позволяет
+добавлять их динамически, но увеличивает расход памяти и время доступа. Объявление
+\code{\_\_slots\_\_} заменяет словарь фиксированным набором полей, аналогично \code{struct} в C++.
+В примере ниже объём памяти измеряется модулем \code{tracemalloc} по 100\,000 объектов
+(в значение входит и 8-байтная ссылка на объект в списке); функция \code{sys.getsizeof}
+для такого сравнения не подходит, поскольку не учитывает память, занятую атрибутами.
+
+\begin{py}
+import tracemalloc
+from dataclasses import dataclass
+
+
+class Pixel:                    # атрибуты хранятся в __dict__
+    def __init__(self, x: int, y: int, color: int) -> None:
+        self.x, self.y, self.color = x, y, color
+
+
+class SlotPixel:                # фиксированный набор полей
+    __slots__ = ("x", "y", "color")
+
+    def __init__(self, x: int, y: int, color: int) -> None:
+        self.x, self.y, self.color = x, y, color
+
+
+p = SlotPixel(1, 2, 0xFF0000)
+# p.alpha = 1    # AttributeError: атрибут отсутствует в __slots__
+
+
+@dataclass(slots=True)          # аналогичный результат для dataclass
+class Pixel2:
+    x: int
+    y: int
+    color: int
+
+
+def bytes_per_object(cls: type, n: int = 100_000) -> float:
+    tracemalloc.start()         # учёт всей памяти, выделяемой интерпретатором
+    objects = [cls(1, 2, 3) for _ in range(n)]
+    used, _ = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    return used / len(objects)
+
+
+print(f"Pixel:     {bytes_per_object(Pixel):.0f} байт")
+print(f"SlotPixel: {bytes_per_object(SlotPixel):.0f} байт")
+# Вывод (Python 3.13, 64-битная платформа):
+# Pixel:     104 байт
+# SlotPixel: 64 байт
+\end{py}
+
+%=====================================================================
+\section{Измерение производительности}
+
+\subsection{Время выполнения программы}
+
+\begin{shell}
+$ time uv run main.py measurements_10m.txt > /dev/null
+real    0m4.512s      # время выполнения программы
+\end{shell}
+
+Измерение выполняется несколько раз: первый запуск может быть медленнее, пока файл не загружен
+в кеш операционной системы. Время выполнения отдельного участка кода измеряется функцией
+\code{time.perf\_counter()}: она возвращает показания монотонного таймера высокого разрешения
+в секундах, поэтому значение имеет только разность двух показаний.
+
+\begin{py}
+import time
+
+start = time.perf_counter()
+total = sum(i * i for i in range(10_000_000))
+elapsed = time.perf_counter() - start
+print(f"Сумма вычислена за {elapsed:.3f} с")
+# Сумма вычислена за 0.494 с
+\end{py}
+
+\subsection{Профилирование}
+
+Для определения участков программы, на которые приходится основное время выполнения,
+используется профилировщик из стандартной библиотеки:
+\begin{shell}
+$ uv run python -m cProfile -s tottime main.py measurements_1m.txt | head -20
+\end{shell}
+Столбец \code{tottime} содержит время выполнения внутри самой функции, \code{ncalls}~— число
+вызовов.
+
+Столбец \code{cumtime} содержит время выполнения функции вместе со всеми вызванными из неё
+функциями. Профилировщик сам замедляет программу, поэтому его результаты используются для поиска
+узких мест, а не для измерения итогового времени.
+
+\subsection{Построчное профилирование}
+
+Профилировщик \code{cProfile} указывает функцию, на которую приходится основное время, но
+не строку внутри неё. Время выполнения каждой строки функции измеряет пакет \code{line\_profiler}.
+Пакет не входит в стандартную библиотеку и добавляется как зависимость для разработки:
+\begin{shell}
+$ uv add --dev line_profiler
+\end{shell}
+
+Исследуемая функция помечается декоратором \code{@profile}:
+\begin{py}
+from line_profiler import profile
+
+
+@profile
+def primes(n: int) -> list[int]:
+    result = []
+    for k in range(2, n):
+        is_prime = True
+        for d in range(2, int(k**0.5) + 1):
+            if k % d == 0:
+                is_prime = False
+                break
+        if is_prime:
+            result.append(k)
+    return result
+
+
+if __name__ == "__main__":
+    print(len(primes(100_000)))
+\end{py}
+
+Без переменной окружения \code{LINE\_PROFILE} декоратор ничего не делает, и программа
+выполняется как обычно. При запуске с \code{LINE\_PROFILE=1} результаты измерений записываются
+в файл \code{profile\_output.txt} в текущем каталоге:
+\begin{shell}
+$ LINE_PROFILE=1 uv run primes.py
+9592
+...
+Wrote profile results to profile_output.txt
+\end{shell}
+
+Содержимое \code{profile\_output.txt}:
+\begin{plainwide}
+Timer unit: 1e-09 s
+
+Total time: 0.918304 s
+File: /home/student/lab1/primes.py
+Function: primes at line 4
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     4                                           @profile
+     5                                           def primes(n: int) -> list[int]:
+     6         1          0.0      0.0      0.0      result = []
+     7     99999   17678000.0    176.8      1.9      for k in range(2, n):
+     8     99998   14904000.0    149.0      1.6          is_prime = True
+     9   2755285  419914000.0    152.4     45.7          for d in range(2, int(k**0.5) + 1):
+    10   2745693  421922000.0    153.7     45.9              if k % d == 0:
+    11     90406   13286000.0    147.0      1.4                  is_prime = False
+    12     90406   13504000.0    149.4      1.5                  break
+    13     99998   15337000.0    153.4      1.7          if is_prime:
+    14      9592    1755000.0    183.0      0.2              result.append(k)
+    15         1       4000.0   4000.0      0.0      return result
+\end{plainwide}
+
+Столбец \code{Hits} содержит число выполнений строки, \code{Time}~— суммарное время её
+выполнения в единицах \code{Timer unit}, \code{Per Hit}~— среднее время одного выполнения,
+\code{\% Time}~— долю от общего времени функции. В приведённом примере более 90\,\% времени
+приходится на внутренний цикл (строки~9 и~10). Как и \code{cProfile}, построчный профилировщик
+замедляет программу; декораторы \code{@profile} удаляются из кода после завершения анализа.
+
+%=====================================================================
+\section{Задание}
+
+Работа продолжает лабораторную работу №1 и выполняется в том же репозитории. Условие задачи
+<<Миллиард строк>>, форматы входных и выходных данных и материалы каталога \code{data/} приведены
+в описании лабораторной работы №1. Работа состоит из двух частей, обе обязательны.
+
+\subsection{Часть 1. Объектно-ориентированная организация решения}
+
+\begin{enumerate}
+  \item \textbf{Класс \code{StationStats}} (файл \code{stats.py}) хранит статистику одной станции
+        и предоставляет:
+  \begin{itemize}
+    \item метод \code{update(value)}~— учёт очередного измерения;
+    \item метод \code{merge(other)}~— объединение со статистикой другого объекта \code{StationStats}
+          по той же станции;
+    \item свойства \code{min}, \code{max}, \code{mean}, \code{count}, доступные только для чтения;
+    \item метод \code{\_\_repr\_\_}, возвращающий строку \code{min;mean;max} в формате вывода.
+  \end{itemize}
+  \item Решение лабораторной работы №1 использует класс \code{StationStats} для хранения
+        и объединения статистики станций. Интерфейс командной строки и формат вывода
+        не меняются; \code{check.py} по-прежнему выводит \code{OK}.
+\end{enumerate}
+
+\subsection{Часть 2. Производительность}
+
+\begin{enumerate}
+  \item Для исходной версии решения выполняется профилирование; в
+        \code{README.md} приводятся первые строки отчёта и вывод о том, на что приходится
+        основное время выполнения.
+  \item Решение последовательно ускоряется с контролем времени выполнения. В \code{README.md}
+        приводится таблица не менее чем для трёх версий программы: для каждой версии указываются
+        внесённые изменения и время обработки файлов из 10~млн и 100~млн строк. Каждая версия
+        фиксируется отдельным коммитом.
+  \item Все версии остаются корректными (\code{check.py} выводит \code{OK}) и соблюдают требования
+        части~1.
+\end{enumerate}
+
+%=====================================================================
+\section{Порядок сдачи}
+
+До защиты преподавателю направляется ссылка на репозиторий GitHub. Доступность ссылки
+проверяется без входа в учётную запись (например, в приватном окне браузера); для приватного
+репозитория проверяется наличие преподавателя в списке Collaborators. Сданное состояние
+репозитория помечается тегом \code{lab2} и публикуется на GitHub аналогично лабораторной
+работе №1; проверке подлежит именно оно.
+
+На защите студент:
+\begin{enumerate}
+  \item демонстрирует историю коммитов, содержащую отдельные версии решения;
+  \item запускает \code{check.py} на файле \code{measurements\_100k};
+  \item представляет таблицу замеров и обосновывает влияние каждого изменения на время выполнения;
+  \item отвечает на вопросы по коду.
+\end{enumerate}
+
+\subsection*{Возможные вопросы}
+
+\begin{enumerate}
+  \item Является ли метод \code{\_\_init\_\_} конструктором? Для чего предназначен метод
+        \code{\_\_new\_\_}? Каким образом в Python реализуются альтернативные конструкторы?
+  \item Каким образом в Python реализуется инкапсуляция? Для чего используется \code{@property}?
+  \item Что происходит, если в классе определён \code{\_\_eq\_\_}, но не определён \code{\_\_hash\_\_}?
+  \item Чем различаются \code{\_\_repr\_\_} и \code{\_\_str\_\_}? Какой из методов вызывает \code{print}?
+  \item Что означает \code{return NotImplemented} в \code{\_\_eq\_\_} или \code{\_\_add\_\_}?
+        Для чего нужен \code{\_\_rmul\_\_}?
+  \item Чем \code{@classmethod} отличается от \code{@staticmethod} и от обычного метода?
+  \item Что такое утиная типизация? Приведите пример из стандартной библиотеки.
+  \item Что даёт объявление \code{\_\_slots\_\_} и какие ограничения оно накладывает?
+  \item Какое изменение в решении задачи дало наибольший прирост производительности и почему?
+\end{enumerate}
+
+\subsection*{Источники}
+\begin{itemize}
+  \item Модель данных Python (магические методы): \url{https://docs.python.org/3.13/reference/datamodel.html}
+  \item Профилировщики Python: \url{https://docs.python.org/3.13/library/profile.html}
+  \item Документация line\_profiler: \url{https://kernprof.readthedocs.io/en/latest/manual/index.html}
+  \item One Billion Row Challenge: \url{https://github.com/gunnarmorling/1brc}
+\end{itemize}
+
+\end{document}

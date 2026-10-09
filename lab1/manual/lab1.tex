@@ -1,0 +1,718 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{PTF55F.ttf}[BoldFont=PTF75F.ttf,ItalicFont=PTF56F.ttf,BoldItalicFont=PTF76F.ttf]
+\setsansfont{PTS55F.ttf}[BoldFont=PTS75F.ttf,ItalicFont=PTS56F.ttf,BoldItalicFont=PTS76F.ttf]
+\setmonofont{PTM55F.ttf}[Scale=0.92]
+\usepackage[russian]{babel}
+\AtBeginDocument{\shorthandoff{"}}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{minted}
+\usepackage[most,minted]{tcolorbox}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{3em}
+\setlength{\parskip}{0.55em}
+\setlist{itemsep=0.15em,topsep=0.3em}
+\titleformat{\section}{\Large\sffamily\bfseries}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\sffamily\bfseries}{\thesubsubsection}{0.6em}{}
+
+\definecolor{codebg}{HTML}{F6F7F9}
+
+% Листинги: minted (нужен pygmentize и tectonic -Z shell-escape).
+\usemintedstyle{friendly}
+% Пробелы в листингах выводятся настоящим глифом U+0020, чтобы отступы
+% сохранялись при копировании кода из PDF.
+\newcommand{\copyspace}{\XeTeXglyph\XeTeXcharglyph"0020\relax}
+\tcbset{codebox/.style={listing only, breakable, enhanced, colback=codebg, frame hidden,
+  arc=1pt, left=4pt, right=4pt, top=1pt, bottom=1pt, before skip=0.5em, after skip=0.6em}}
+\newtcblisting{py}{codebox, listing engine=minted, minted language=python, minted options={fontsize=\small,breaklines,tabsize=4,showspaces,space=\copyspace}}
+\newtcblisting{shell}{codebox, listing engine=minted, minted language=console, minted options={fontsize=\small,breaklines,tabsize=4,showspaces,space=\copyspace}}
+\newtcblisting{toml}{codebox, listing engine=minted, minted language=toml, minted options={fontsize=\small,breaklines,tabsize=4,showspaces,space=\copyspace}}
+\newtcblisting{plaintext}{codebox, listing engine=minted, minted language=text, minted options={fontsize=\small,breaklines,tabsize=4,showspaces,space=\copyspace}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\begin{center}
+  {\sffamily\small Программирование на языке Python · 2 курс}\\[0.6em]
+  {\sffamily\LARGE\bfseries Лабораторная работа №1}\\[0.4em]
+  {\sffamily\Large Окружение, git и синтаксис Python.\\ Задача «Миллиард строк»}
+\end{center}
+
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{Общие положения}
+
+\subsection{Цель работы}
+
+Лабораторная работа предназначена для студентов, освоивших на первом курсе язык C++ и основы
+объектно-ориентированного программирования. Цель работы~— перенос имеющихся знаний на язык
+Python и изучение его принципиальных отличий от C++. По итогам работы студент должен:
+
+\begin{itemize}
+  \item уметь настраивать рабочее окружение: интерпретатор, виртуальное окружение, менеджер проектов \code{uv};
+  \item уметь вести историю проекта в git и публиковать репозиторий на GitHub;
+  \item владеть базовым синтаксисом языка, встроенными типами данных и работой с файлами;
+  \item уметь решать задачу обработки большого текстового файла средствами стандартной библиотеки.
+\end{itemize}
+
+%=====================================================================
+\section{Рабочее окружение}
+
+\subsection{Интерпретатор}
+
+Программа на C++ проходит путь \emph{исходный код $\to$ компилятор $\to$ машинный код $\to$ запуск}.
+В основной реализации Python (CPython) отдельного этапа сборки нет: интерпретатор \code{python}
+компилирует исходный код в байт-код и сразу исполняет его на собственной виртуальной машине.
+Как следствие, ошибки, которые в C++ выявляются при компиляции (например, опечатка в имени
+переменной), в Python проявляются только при выполнении соответствующей строки.
+
+\subsection{Пакеты и виртуальные окружения}
+
+Сторонние библиотеки устанавливаются менеджером пакетов \code{pip} из репозитория PyPI.
+Установка пакетов в системный интерпретатор приводит к конфликтам: разным проектам могут
+требоваться несовместимые версии одной библиотеки, а на macOS и Linux системный Python
+используется самой операционной системой.
+
+Для изоляции проектов применяется \textbf{виртуальное окружение} (venv)~— каталог внутри проекта,
+содержащий ссылку на интерпретатор и собственный набор установленных пакетов.
+
+\begin{shell}
+$ python3 -m venv .venv            # создание окружения в каталоге .venv
+$ source .venv/bin/activate        # активация (macOS / Linux)
+> .venv\Scripts\activate            # активация (Windows)
+(.venv) $ which python             # .venv/bin/python
+(.venv) $ pip install requests     # пакет устанавливается только в .venv
+(.venv) $ pip freeze > requirements.txt
+(.venv) $ deactivate
+\end{shell}
+
+Такой подход требует ручной активации окружения, ручного ведения списка зависимостей и отдельной
+установки нужной версии интерпретатора. В курсе вместо него используется менеджер проектов \code{uv}.
+
+\subsection{Менеджер проектов uv}\label{sec:uv}
+
+\href{https://docs.astral.sh/uv/}{\code{uv}}~— менеджер проектов для Python, который
+устанавливает интерпретаторы требуемых версий, создаёт виртуальные окружения, управляет
+зависимостями и запускает код. По сути он автоматизирует действия, выполняемые вручную
+с помощью \code{venv} и \code{pip}.
+
+\subsubsection*{Установка}\phantomsection\label{sec:uv-install}
+\begin{shell}
+# macOS / Linux
+$ curl -LsSf https://astral.sh/uv/install.sh | sh
+# Windows (PowerShell)
+> powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+$ uv --version
+\end{shell}
+
+\subsubsection*{Создание проекта}
+\begin{shell}
+$ uv python install 3.13           # установка интерпретатора Python 3.13
+$ uv init --python 3.13 lab1       # создание проекта в каталоге lab1
+$ cd lab1
+$ tree -a -I .git
+.
+├── .gitignore
+├── .python-version                # версия Python для проекта
+├── README.md
+├── main.py
+└── pyproject.toml                 # описание проекта и зависимостей
+\end{shell}
+
+Файл \code{pyproject.toml} выполняет роль, аналогичную \code{CMakeLists.txt}: в нём указываются
+имя проекта, требуемая версия Python и список зависимостей.
+
+\begin{toml}
+[project]
+name = "lab1"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = []
+\end{toml}
+
+\subsubsection*{Запуск и зависимости}
+\begin{shell}
+$ uv run main.py             # создаёт .venv при необходимости и запускает скрипт
+$ uv add requests            # добавление зависимости в pyproject.toml и установка
+$ uv remove requests         # удаление зависимости
+$ uv sync                    # синхронизация .venv с pyproject.toml и uv.lock
+\end{shell}
+
+После первого запуска в проекте появляются каталог \code{.venv} и файл \code{uv.lock}.
+В lock-файле фиксируются точные версии всех зависимостей, включая транзитивные, что обеспечивает
+одинаковое окружение у всех, кто работает с репозиторием.
+
+\subsubsection*{Редактор}
+
+Для работы подходят VS Code с расширением \emph{Python} (Microsoft) или PyCharm. В настройках
+редактора в качестве интерпретатора необходимо выбрать интерпретатор из каталога \code{.venv}
+проекта (в VS Code~— команда \emph{Python: Select Interpreter}); в противном случае подсказки
+и запуск будут использовать другое окружение.
+
+\subsection{Git и GitHub}\label{sec:git}
+
+Все лабораторные работы курса сдаются через git-репозиторий; при проверке оценивается как итоговый
+код, так и история его изменений. Git~— система контроля версий, которая хранит последовательность
+снимков проекта (\emph{коммитов}) и позволяет просматривать изменения и возвращаться к любому
+из сохранённых состояний. GitHub~— сервис для размещения git-репозиториев, доступных по ссылке.
+
+\subsubsection*{Установка и первичная настройка}
+
+Git устанавливается с сайта \url{https://git-scm.com} (на macOS также через \code{xcode-select --install}
+или \code{brew install git}). Перед началом работы указываются имя и адрес электронной почты,
+которые записываются в каждый коммит:
+\begin{shell}
+$ git config --global user.name "Иван Иванов"
+$ git config --global user.email "ivan@example.com"
+$ git config --global init.defaultBranch main
+\end{shell}
+
+\subsubsection*{Основной цикл работы}
+
+Команда \code{uv init} создаёт git-репозиторий в каталоге проекта (при его отсутствии используется
+\code{git init}). Работа с репозиторием строится по циклу: изменение файлов $\to$ просмотр
+изменений $\to$ добавление изменений в индекс $\to$ создание коммита.
+
+\begin{shell}
+$ git status                       # изменённые и неотслеживаемые файлы
+$ git diff                         # содержание изменений
+$ git add stats.py                 # добавление файла в следующий коммит
+$ git commit -m "StationStats: update и merge"
+$ git log --oneline                # история коммитов
+\end{shell}
+
+Требования к истории изменений:
+\begin{itemize}
+  \item каждый коммит содержит одно законченное по смыслу изменение (например, <<разбор строки
+        без \code{float}>>, <<чтение файла блоками>>); единственный коммит со всей работой
+        не считается приемлемой историей;
+  \item сообщение коммита кратко описывает сделанное изменение: \code{"StationStats: merge"},
+        а не \code{"fix"} или \code{"asdf"};
+  \item перед \code{git add .} проверяется вывод \code{git status}, чтобы в коммит не попали лишние файлы.
+\end{itemize}
+
+\subsubsection*{Файлы, исключаемые из репозитория}
+
+Файл \code{.gitignore} содержит перечень путей, которые git не отслеживает; \code{uv init}
+создаёт его с \code{.venv} и кешами Python.
+
+\subsubsection*{Публикация на GitHub}
+
+\begin{enumerate}
+  \item Регистрация на \url{https://github.com}.
+  \item Настройка доступа с компьютера. Наиболее простой способ~— GitHub CLI: установить \code{gh}
+        (\url{https://cli.github.com}) и выполнить \code{gh auth login}. Альтернативный способ~—
+        SSH-ключ: \code{ssh-keygen -t ed25519}, после чего публичный ключ
+        \code{\textasciitilde/.ssh/id\_ed25519.pub} добавляется в \emph{Settings $\to$ SSH and GPG keys}.
+        Пароль от учётной записи для \code{git push} не используется.
+  \item Создание пустого репозитория (\emph{New repository}, без README и \code{.gitignore},
+        поскольку они уже созданы локально). Репозиторий может быть публичным или приватным.
+  \item Связывание локального репозитория с удалённым и отправка коммитов:
+\begin{shell}
+$ git remote add origin git@github.com:<логин>/python-lab1.git
+$ git push -u origin main          # первая отправка; далее достаточно git push
+\end{shell}
+        При использовании \code{gh} шаги 3--4 выполняются одной командой:
+        \code{gh repo create python-lab1 --private --source=. --push}.
+\end{enumerate}
+
+%=====================================================================
+\section{Синтаксис языка}
+
+\subsection{Структура программы}
+
+\begin{py}
+def greet(name: str) -> str:
+    return f"Привет, {name}!"
+
+
+if __name__ == "__main__":
+    for who in ["мир", "БГУ"]:
+        print(greet(who))
+\end{py}
+
+Основные отличия от C++:
+\begin{itemize}
+  \item \textbf{блоки кода задаются отступами}, а не фигурными скобками; двоеточие открывает блок.
+        Стандартный отступ~— 4 пробела;
+  \item точка с запятой в конце инструкции не ставится, типы переменных не объявляются;
+  \item \code{name: str} и \code{-> str}~— \emph{аннотации типов} (type hints). Интерпретатор
+        их не проверяет: они служат документацией и используются редактором для подсказок.
+        Проверку соответствия типов выполняют отдельные инструменты статического анализа
+        (например, \code{mypy}), которые рассматриваются в лабораторной работе №2;
+  \item \code{f"...\{expr\}..."}~— f-строка, аналог \code{std::format};
+  \item функция \code{main} не обязательна: код модуля выполняется сверху вниз. Условие
+        \code{\_\_name\_\_ == "\_\_main\_\_"} истинно, только если файл запущен как скрипт,
+        а не импортирован из другого модуля.
+\end{itemize}
+
+Стиль кода на Python описан в документе \href{https://peps.python.org/pep-0008/}{PEP~8}:
+\code{snake\_case} для функций и переменных, \code{CamelCase} для классов, \code{UPPER\_CASE}
+для констант.
+
+\subsection{Переменные, объекты и ссылки}
+
+В C++ переменная обозначает область памяти определённого типа. В Python переменная~— это
+\textbf{имя, связанное с объектом}. Тип принадлежит объекту, а не имени, и одно имя может быть
+повторно связано с объектом другого типа.
+
+\begin{py}
+x = 42          # имя x связано с объектом int
+x = "строка"    # теперь -- с объектом str
+a = [1, 2, 3]
+b = a           # копирования нет: a и b -- два имени одного списка
+b.append(4)
+print(a)        # [1, 2, 3, 4]
+c = a.copy()    # явная (поверхностная) копия
+print(a == c, a is c)   # True False: == сравнивает значения, is -- идентичность
+\end{py}
+
+Семантику переменных Python удобно представлять через \code{std::shared\_ptr<Object>} в C++:
+присваивание копирует ссылку, а не объект. Память освобождается автоматически (подсчёт ссылок
+и сборщик циклов). Аргументы функций также передаются по ссылке.
+
+Объекты делятся на \textbf{изменяемые} (\code{list}, \code{dict}, \code{set}, большинство
+пользовательских классов) и \textbf{неизменяемые} (\code{int}, \code{float}, \code{str},
+\code{tuple}, \code{bytes}, \code{frozenset}). Содержимое неизменяемого объекта изменить нельзя~—
+можно только создать новый объект:
+
+\begin{py}
+s = "abc"
+s += "d"        # создаётся новая строка "abcd", имя s связывается с ней
+# s[0] = "X"    # TypeError: 'str' object does not support item assignment
+\end{py}
+
+\subsection{Встроенные типы}
+
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\toprule
+\textbf{Тип} & \textbf{Описание} & \textbf{Аналог в C++} \\
+\midrule
+\code{int}   & целое \emph{произвольной} длины, без переполнения & \code{long long} без границ \\
+\code{float} & число с плавающей точкой двойной точности & \code{double} \\
+\code{bool}  & \code{True} / \code{False} (подкласс \code{int}) & \code{bool} \\
+\code{str}   & неизменяемая строка символов Unicode & \code{std::u32string} \\
+\code{bytes} & неизменяемая последовательность байтов & \code{std::vector<uint8\_t>} \\
+\code{None}  & отсутствие значения, единственный объект своего типа & \code{nullptr} / \code{std::nullopt} \\
+\code{list}  & динамический массив ссылок на объекты & \code{std::vector<Object*>} \\
+\code{tuple} & неизменяемая последовательность фиксированной длины & \code{std::tuple} \\
+\code{dict}  & хеш-таблица, сохраняющая порядок вставки & \code{std::unordered\_map} \\
+\code{set}   & хеш-множество & \code{std::unordered\_set} \\
+\bottomrule
+\end{tabularx}
+
+\begin{py}
+7 / 2       # 3.5   -- деление всегда даёт float
+7 // 2      # 3     -- целочисленное деление с округлением вниз
+-7 // 2     # -4    -- в C++ результат равен -3
+-7 % 2      # 1     -- знак остатка совпадает со знаком делителя
+2 ** 10     # 1024  -- возведение в степень
+int("42"), float("3.14"), str(42)   # преобразования типов
+len("Минск")                        # 5 символов
+len("Минск".encode("utf-8"))        # 10 байт в кодировке UTF-8
+\end{py}
+
+\subsection{Строки}
+
+\begin{py}
+s = "Hello, World"
+s.lower(), s.upper()            # 'hello, world', 'HELLO, WORLD'
+s.split(", ")                   # ['Hello', 'World']
+"key=value".partition("=")      # ('key', '=', 'value')
+"  text \n".strip()             # 'text'
+", ".join(["a", "b", "c"])      # 'a, b, c'
+s.startswith("He"), "or" in s   # True True
+s.find("o"), s.replace("l", "L")
+f"{3.14159:.2f}", f"{42:>6}"    # '3.14', '    42'
+\end{py}
+
+Поскольку строки неизменяемы, операция \code{s += x} в цикле на каждой итерации создаёт новую
+строку. Для объединения большого числа фрагментов их накапливают в списке и объединяют вызовом
+\code{"".join(parts)}.
+
+\subsection{Коллекции}
+
+\begin{py}
+xs = [3, 1, 2]
+xs.append(5)            # добавление в конец, амортизированно O(1)
+xs.pop()                # удаление с конца, O(1)
+xs.insert(0, 10)        # вставка, O(n)
+xs.sort()               # сортировка на месте
+ys = sorted(xs, reverse=True)   # новый отсортированный список
+xs[0], xs[-1]           # первый и последний элементы
+xs[1:3], xs[::-1]       # срезы [start:stop:step] создают копию части списка
+
+point = (1.0, 2.0)      # кортеж
+x, y = point            # распаковка
+a, b = b, a             # обмен значений без временной переменной
+
+ages = {"Анна": 19, "Борис": 20}
+ages["Вера"] = 18       # вставка или перезапись
+ages.get("Глеб")        # None, если ключ отсутствует (ages["Глеб"] -- KeyError)
+ages.get("Глеб", 0)     # значение по умолчанию
+"Анна" in ages          # проверка наличия ключа, в среднем O(1)
+for name, age in ages.items():
+    print(name, age)
+
+seen = {1, 2, 3}
+seen.add(2)             # множество не изменится
+seen & {2, 5}, seen | {5}   # пересечение, объединение
+\end{py}
+
+Ключом словаря и элементом множества может быть только \emph{хешируемый} объект~— как правило,
+неизменяемый: \code{int}, \code{str}, \code{tuple} из хешируемых элементов. Список не может
+быть ключом словаря.
+
+\subsection{Управляющие конструкции}
+
+\begin{py}
+if x > 0 and not done:          # and, or, not вместо &&, ||, !
+    ...                         # ... (или pass) -- пустое тело блока
+elif x == 0:
+    ...
+else:
+    ...
+
+for i in range(10):             # 0..9; в общем виде range(start, stop, step)
+    ...
+for i, item in enumerate(items):    # индекс и элемент
+    ...
+for a, b in zip(xs, ys):        # параллельный обход двух последовательностей
+    ...
+
+while n > 1:
+    n //= 2                     # операторов ++ и -- нет: n += 1
+
+label = "чёт" if n % 2 == 0 else "нечет"    # условное выражение
+
+match command.split():          # сопоставление с образцом (Python 3.10+)
+    case ["go", direction]:
+        move(direction)
+    case ["quit" | "exit"]:
+        stop()
+    case _:
+        print("неизвестная команда")
+\end{py}
+
+Цикл \code{for} в Python всегда перебирает элементы коллекции, аналогично range-based for
+в C++11; конструкции вида \code{for (int i = 0; i < n; ++i)} нет. Если помимо элемента требуется
+его индекс, используется \code{enumerate}, а не \code{range(len(xs))}.
+
+\subsection{Генераторы коллекций}
+
+Генераторы коллекций (comprehensions)~— сокращённая запись построения коллекций:
+\begin{py}
+squares = [x * x for x in range(10)]
+evens   = [x for x in xs if x % 2 == 0]
+lengths = {word: len(word) for word in words}       # словарь
+letters = {ch for ch in "abracadabra"}              # множество
+total   = sum(x * x for x in range(10))             # без промежуточного списка
+\end{py}
+
+\subsection{Функции}
+
+\begin{py}
+def power(base: float, exp: int = 2) -> float:      # значение по умолчанию
+    return base ** exp
+
+power(3), power(3, 3), power(exp=3, base=2)         # позиционные и именованные аргументы
+
+def mean(*values: float) -> float:                  # произвольное число аргументов
+    return sum(values) / len(values)
+
+mean(1, 2, 3)
+
+def connect(host: str, *, timeout: float = 1.0, **options) -> None:
+    # аргументы после * передаются только по имени; **options -- словарь прочих
+    print(host, timeout, options)
+
+connect("bsu.by", timeout=5, retries=3)
+
+def min_max(xs: list[int]) -> tuple[int, int]:      # возврат нескольких значений
+    return min(xs), max(xs)
+
+lo, hi = min_max([3, 1, 4])
+\end{py}
+
+Функции являются объектами: их можно присваивать переменным, передавать в другие функции
+и создавать в выражениях с помощью \code{lambda}:
+\begin{py}
+words.sort(key=len)                         # сортировка по длине
+pairs.sort(key=lambda p: (p[1], p[0]))      # по второму, затем по первому элементу
+\end{py}
+
+Значение аргумента по умолчанию вычисляется \textbf{один раз}~— при определении функции.
+Изменяемое значение по умолчанию поэтому оказывается общим для всех вызовов:
+\begin{py}
+def add(item, bucket=[]):       # ошибка
+    bucket.append(item)
+    return bucket
+
+add(1); add(2)                  # второй вызов вернёт [1, 2]
+
+def add(item, bucket=None):     # корректный вариант
+    if bucket is None:
+        bucket = []
+    bucket.append(item)
+    return bucket
+\end{py}
+
+\subsection{Исключения}
+
+\begin{py}
+try:
+    value = int(text)
+except ValueError as e:
+    print(f"не число: {e}")
+    value = 0
+else:
+    print("разбор выполнен без ошибок")   # если исключения не было
+finally:
+    print("выполняется всегда")
+
+if count < 0:
+    raise ValueError(f"count должен быть >= 0, получено {count}")
+\end{py}
+
+Часто используемые встроенные исключения: \code{ValueError}, \code{TypeError},
+\code{KeyError}, \code{IndexError}, \code{FileNotFoundError}, \code{ZeroDivisionError}.
+Пользовательские исключения наследуются от \code{Exception}.
+
+В отличие от C++, где исключения принято использовать лишь для исключительных ситуаций,
+в Python они являются штатным механизмом управления потоком выполнения: например, цикл
+\code{for} завершается по исключению \code{StopIteration}. Стиль <<выполнить и обработать
+ошибку>> (EAFP, \emph{easier to ask for forgiveness than permission}) считается в Python нормой.
+
+\subsection{Работа с файлами}
+
+\begin{py}
+with open("data.txt", encoding="utf-8") as f:       # текстовый режим
+    for line in f:                                  # построчное чтение
+        print(line.rstrip("\n"))
+# здесь файл уже закрыт, даже если внутри блока возникло исключение
+
+with open("out.txt", "w", encoding="utf-8") as f:
+    f.write("строка\n")
+
+with open("data.txt", "rb") as f:                   # бинарный режим
+    chunk = f.read(1 << 20)                         # чтение до 1 МиБ -> bytes
+    text = chunk.decode("utf-8")                    # bytes -> str
+\end{py}
+
+Конструкция \code{with} (контекстный менеджер) реализует идиому RAII: ресурс гарантированно
+освобождается при выходе из блока. В текстовом режиме байты файла декодируются в \code{str};
+кодировку следует указывать явно (\code{encoding="utf-8"}), поскольку кодировка по умолчанию
+зависит от операционной системы.
+
+\subsection{Соответствие конструкций C++ и Python}
+
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}X>{\ttfamily}X@{}}
+\toprule
+\textrm{\textbf{C++}} & \textrm{\textbf{Python}} \\
+\midrule
+std::vector<int> v\{1, 2\}; & v = [1, 2] \\
+v.push\_back(3); v.size(); & v.append(3); len(v) \\
+std::unordered\_map<K, V> m; & m = \{\} \\
+if (m.count(k)) & if k in m: \\
+for (auto\& x : v) & for x in v: \\
+for (int i = 0; i < n; ++i) & for i in range(n): \\
+a \&\& b, a || b, !a & a and b, a or b, not a \\
+x ? a : b & a if x else b \\
+nullptr & None \\
+std::cout << x << '\textbackslash n'; & print(x) \\
+std::getline(std::cin, s); & s = input() \\
+std::stoi(s), std::to\_string(x) & int(s), str(x) \\
+// комментарий & \# комментарий \\
+throw std::runtime\_error("..."); & raise RuntimeError("...") \\
+try \{\} catch (const E\& e) \{\} & try: ... except E as e: ... \\
+\bottomrule
+\end{tabularx}
+
+%=====================================================================
+\section{Задание}
+
+Работа состоит из двух частей. Результат сдаётся в виде git-репозитория
+на GitHub (раздел~\ref{sec:git}); преподавателю направляется ссылка на репозиторий.
+Тот же репозиторий используется в последующих лабораторных работах.
+
+\subsection{Часть 1. Создание проекта}
+
+\begin{enumerate}
+  \item \hyperref[sec:uv-install]{Установить \code{uv}} (раздел~\ref{sec:uv}) и Python~3.13 (\code{uv python install 3.13}).
+  \item Создать проект командой \code{uv init --python 3.13}, скопировать в него каталог \code{data/}
+        из материалов работы и выполнить первый коммит.
+  \item Дополнить \code{.gitignore} так, чтобы в репозиторий не попадали каталог \code{.venv}
+        и сгенерированные файлы с данными.
+  \item Создать репозиторий на GitHub (публичный либо приватный с доступом для преподавателя)
+        и отправить в него проект. В ходе дальнейшей работы изменения фиксируются
+        отдельными коммитами и регулярно отправляются командой \code{git push}.
+  \item Итоговая структура проекта:
+\begin{plaintext}
+lab1/
+├── .gitignore
+├── .python-version
+├── pyproject.toml
+├── uv.lock
+├── data/              # материалы работы (генератор, примеры, check.py)
+├── README.md          # инструкция по запуску
+└── main.py            # решение задачи из части 2
+\end{plaintext}
+  \item Все функции снабжаются аннотациями типов; имена соответствуют PEP~8.
+\end{enumerate}
+
+\subsection{Часть 2. Задача «Миллиард строк»}
+
+В 2024 году в Java-сообществе проводился конкурс
+\href{https://github.com/gunnarmorling/1brc}{One Billion Row Challenge}: требовалось как можно
+быстрее обработать текстовый файл из миллиарда строк с измерениями температуры. Задача проста
+по формулировке, однако при таком объёме данных каждая лишняя операция в цикле обработки
+обходится в секунды. В данной работе требуется корректное решение задачи на Python.
+Решение может быть любой сложности, в том числе с использованием многопоточности и различных механизмов
+операционной системы, но без сторонних библиотек. Данные темы также будут затронуты только в последующих
+лабораторных работах.
+
+\subsubsection*{Входные данные}
+f
+Текстовый файл в кодировке UTF-8; каждая строка имеет вид \code{<станция>;<температура>}:
+\begin{plaintext}
+Minsk;7.3
+Hamburg;12.0
+Zürich;-3.4
+Bulawayo;8.9
+Palembang;38.8
+\end{plaintext}
+
+Гарантируется, что:
+\begin{itemize}
+  \item название станции~— непустая строка длиной не более 100 байт в UTF-8, не содержащая
+        символов \code{;} и \code{\textbackslash n};
+  \item температура~— число от $-99.9$ до $99.9$ ровно с одним знаком после точки;
+  \item число различных станций не превышает 10\,000;
+  \item каждая строка, включая последнюю, завершается символом \code{\textbackslash n}.
+\end{itemize}
+
+\subsubsection*{Выходные данные}
+
+Для каждой станции вычисляются минимальная, средняя и максимальная температура. Результат
+выводится по одной строке на станцию в формате \code{<станция>;<min>;<mean>;<max>}:
+\begin{plaintext}
+Abha;-0.8;18.3;48.0
+Abidjan;-5.2;24.4;54.4
+...
+Zürich;-22.6;9.8;36.6
+İzmir;-7.3;17.2;44.7
+\end{plaintext}
+\begin{itemize}
+  \item станции упорядочены по названию встроенной функцией \code{sorted} (сравнение строк
+        по кодам символов Unicode, поэтому, например, \code{İzmir} следует после \code{Zürich});
+  \item каждое число выводится ровно с одним знаком после точки;
+  \item среднее значение округляется до десятых по правилу <<половина вверх>>:
+        $\lfloor 10\cdot\text{mean} + 0.5\rfloor / 10$, т.\,е. $1.25 \to 1.3$, $-1.25 \to -1.2$.
+\end{itemize}
+
+\subsubsection*{Материалы}
+
+Каталог \code{data/} содержит:
+\begin{itemize}
+  \item \code{generate\_measurements.py}~— генератор входных файлов. Файлы объёмом в миллионы строк
+        в репозиторий не добавляются и генерируются локально:
+\begin{shell}
+$ uv run data/generate_measurements.py 10_000_000 -o measurements_10m.txt
+\end{shell}
+        Генератор детерминирован: при одинаковых значениях \code{N} и \code{--seed} создаётся
+        один и тот же файл. Ориентировочный размер: 10~млн строк~— около 140~МБ, 100~млн~— 1{,}4~ГБ,
+        1~млрд~— 14~ГБ;
+  \item \code{weather\_stations.csv}~— список станций со среднегодовыми температурами, используемый генератором;
+  \item \code{measurements\_1k.txt}, \code{measurements\_100k.txt}~— небольшие входные файлы для отладки;
+        \code{*.out}~— эталонные результаты для них;
+  \item \code{check.py}~— программа проверки результата:
+\begin{shell}
+$ uv run main.py data/measurements_100k.txt \
+    | python data/check.py data/measurements_100k.out
+OK
+\end{shell}
+\end{itemize}
+
+\subsubsection*{Требования к решению}
+
+\begin{enumerate}
+  \item \textbf{Программа} \code{main.py} принимает путь к файлу и выводит результат:
+\begin{shell}
+$ uv run main.py measurements_10m.txt
+Abha;-0.8;18.3;48.0
+Abidjan;-5.2;24.4;54.4
+...
+\end{shell}
+  \item \textbf{Объём данных.} Программа обрабатывает файл из 100~млн строк (около 1{,}4~ГБ);
+        объём используемой памяти не зависит от размера входного файла.
+  \item \textbf{Ошибки.} При отсутствии аргументов или несуществующем файле программа выводит
+        сообщение об ошибке в \code{stderr} и завершается с ненулевым кодом возврата, без вывода
+        трассировки стека.
+  \item \textbf{Корректность.} Результат совпадает с эталоном на файлах \code{measurements\_1k}
+        и \code{measurements\_100k} (\code{check.py} выводит \code{OK}).
+\end{enumerate}
+
+%=====================================================================
+\section{Порядок сдачи}
+
+До защиты преподавателю направляется ссылка на репозиторий GitHub. Доступность ссылки
+проверяется без входа в учётную запись (например, в приватном окне браузера); для приватного
+репозитория проверяется наличие преподавателя в списке Collaborators. Сданное состояние
+репозитория помечается тегом \code{lab1}; проверке подлежит именно оно:
+\begin{shell}
+$ git tag lab1
+$ git push origin lab1
+\end{shell}
+
+На защите студент:
+\begin{enumerate}
+  \item демонстрирует репозиторий и историю коммитов; в репозитории отсутствуют \code{.venv}
+        и файлы с данными большого объёма, присутствует \code{uv.lock};
+  \item клонирует репозиторий в пустой каталог и запускает программу командой \code{uv run}
+        без дополнительной настройки;
+  \item запускает \code{check.py} на файле \code{measurements\_100k};
+  \item отвечает на вопросы по коду.
+\end{enumerate}
+
+\subsection*{Возможные вопросы}
+
+\begin{enumerate}
+  \item Что такое коммит? Каково назначение команд \code{git add}, \code{git commit}, \code{git push}?
+        Для чего нужен файл \code{.gitignore}?
+  \item Для чего используются виртуальные окружения? Что содержит каталог \code{.venv} и почему
+        он не добавляется в репозиторий? Чем \code{uv.lock} отличается от списка зависимостей
+        в \code{pyproject.toml}?
+  \item Каков результат выполнения \code{b = a; b.append(1)}, если \code{a}~— список?
+        Каков результат \code{b = a; b += 1}, если \code{a}~— число? Чем объясняется различие?
+  \item Чем различаются операторы \code{==} и \code{is}? В каких случаях уместно \code{is}?
+  \item Какие объекты могут быть ключами словаря и почему?
+  \item В чём состоит проблема изменяемого значения аргумента по умолчанию? Как её избежать?
+  \item Проверяет ли интерпретатор аннотации типов во время выполнения? Для чего они используются?
+  \item Чем различаются текстовый и бинарный режимы открытия файла? Каким образом в решении
+        организовано чтение файла?
+  \item Каким образом в решении обеспечено округление среднего значения по заданному правилу?
+\end{enumerate}
+
+\subsection*{Источники}
+\begin{itemize}
+  \item Официальное руководство по Python: \url{https://docs.python.org/3.13/tutorial/}
+  \item Документация uv: \url{https://docs.astral.sh/uv/}
+  \item PEP 8~— руководство по стилю кода: \url{https://peps.python.org/pep-0008/}
+  \item Pro Git (книга о git, есть перевод на русский язык): \url{https://git-scm.com/book/ru/v2}
+  \item One Billion Row Challenge: \url{https://github.com/gunnarmorling/1brc}
+\end{itemize}
+
+\end{document}

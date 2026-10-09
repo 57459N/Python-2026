@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лабораторная работа №2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Mono&family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #1d1f23;
+  --muted: #5d6470;
+  --line: #e3e6eb;
+  --accent: #1f4f99;
+  --code-bg: #f5f6f8;
+  --inline-code-bg: #eef0f3;
+  --btn-bg: #ffffff;
+  --btn-fg: #3b414b;
+  --kw: #0033b3;
+  --st: #067d17;
+  --co: #8c8c8c;
+  --nu: #1750eb;
+  --fu: #00627a;
+  --bu: #871094;
+  --op: #1d1f23;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17191d;
+    --fg: #e4e6ea;
+    --muted: #9aa1ad;
+    --line: #2d3138;
+    --accent: #7eb0ff;
+    --code-bg: #1f2227;
+    --inline-code-bg: #262a30;
+    --btn-bg: #2a2e35;
+    --btn-fg: #d5d9df;
+    --kw: #cf8e6d;
+    --st: #6aab73;
+    --co: #7a7e85;
+    --nu: #2aacb8;
+    --fu: #56a8f5;
+    --bu: #c77dbb;
+    --op: #e4e6ea;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17191d; --fg: #e4e6ea; --muted: #9aa1ad; --line: #2d3138; --accent: #7eb0ff;
+  --code-bg: #1f2227; --inline-code-bg: #262a30; --btn-bg: #2a2e35; --btn-fg: #d5d9df;
+  --kw: #cf8e6d; --st: #6aab73; --co: #7a7e85; --nu: #2aacb8; --fu: #56a8f5; --bu: #c77dbb; --op: #e4e6ea;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 17px/1.6 "PT Serif", Georgia, serif;
+  -webkit-text-size-adjust: 100%;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 48px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+nav#toc {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding: 32px 0;
+  font: 14px/1.45 "PT Sans", system-ui, sans-serif;
+}
+nav#toc .toc-title {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+nav#toc ul { list-style: none; margin: 0; padding: 0; }
+nav#toc li { margin: 3px 0; }
+nav#toc ul ul { padding-left: 14px; margin: 3px 0 8px; }
+nav#toc a { color: var(--fg); }
+nav#toc a:hover { color: var(--accent); text-decoration: none; }
+nav#toc ul ul a { color: var(--muted); }
+nav#toc .toc-section-number { color: var(--muted); margin-right: 6px; }
+
+main { padding: 40px 0 96px; min-width: 0; max-width: 780px; }
+header.title-block { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+header .course { font: 14px "PT Sans", sans-serif; color: var(--muted); }
+header h1.title { font: 700 34px/1.2 "PT Sans", sans-serif; margin: 8px 0 6px; }
+header .subtitle { font: 20px/1.35 "PT Sans", sans-serif; color: var(--muted); margin: 0; }
+
+h1, h2, h3, h4 { font-family: "PT Sans", system-ui, sans-serif; line-height: 1.25; scroll-margin-top: 16px; }
+main h1 { font-size: 28px; margin: 56px 0 16px; }
+main h2 { font-size: 22px; margin: 40px 0 12px; }
+main h3 { font-size: 18px; margin: 28px 0 8px; }
+.header-section-number { color: var(--muted); margin-right: 10px; }
+
+p, li { overflow-wrap: break-word; }
+ul, ol { padding-left: 1.4em; }
+li > p { margin: .3em 0; }
+
+code {
+  font-family: "PT Mono", ui-monospace, Menlo, monospace;
+  font-size: .9em;
+}
+:not(pre) > code {
+  background: var(--inline-code-bg);
+  padding: .08em .3em;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+
+div.sourceCode {
+  position: relative;
+  margin: 14px 0 18px;
+  background: var(--code-bg);
+  border-radius: 6px;
+}
+div.sourceCode pre {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  line-height: 1.45;
+  font-size: 15px;
+}
+pre > code.sourceCode > span { display: inline-block; min-width: 100%; }
+pre > code.sourceCode > span > a:first-child::before { content: none; }
+.copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font: 12px "PT Sans", system-ui, sans-serif;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s;
+}
+div.sourceCode:hover .copy-btn, .copy-btn:focus-visible, .copy-btn.done { opacity: 1; }
+@media (hover: none) { .copy-btn { opacity: 1; } }
+
+code span.kw, code span.cf, code span.im { color: var(--kw); font-weight: 700; }
+code span.dt, code span.bu { color: var(--bu); }
+code span.st, code span.ch, code span.ss, code span.vs, code span.sc { color: var(--st); }
+code span.co, code span.do, code span.an, code span.cv, code span.in { color: var(--co); font-style: italic; }
+code span.dv, code span.fl, code span.bn, code span.cn { color: var(--nu); }
+code span.fu { color: var(--fu); }
+code span.op { color: var(--op); }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0 22px;
+  font-size: 15px;
+  display: block;
+  overflow-x: auto;
+}
+th, td { padding: 6px 12px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left !important; }
+thead th { border-bottom: 2px solid var(--fg); font-family: "PT Sans", sans-serif; }
+
+.theme-toggle {
+  margin-top: 20px;
+  font: 13px "PT Sans", sans-serif;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 5px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .layout { display: block; padding: 0 16px; }
+  nav#toc { position: static; max-height: none; padding: 20px 0 0; }
+  nav#toc details:not([open]) ul { display: none; }
+  main { padding-top: 16px; }
+  header h1.title { font-size: 28px; }
+  div.sourceCode pre { font-size: 13.5px; }
+}
+@media print {
+  nav#toc, .copy-btn { display: none; }
+  .layout { display: block; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav id="toc">
+<details open>
+<summary class="toc-title">Содержание</summary>
+<ul>
+<li><a href="#общие-положения" id="toc-общие-положения"><span
+class="toc-section-number">1</span> Общие положения</a>
+<ul>
+<li><a href="#цель-работы" id="toc-цель-работы"><span
+class="toc-section-number">1.1</span> Цель работы</a></li>
+</ul></li>
+<li><a href="#объектно-ориентированное-программирование"
+id="toc-объектно-ориентированное-программирование"><span
+class="toc-section-number">2</span> Объектно-ориентированное
+программирование</a>
+<ul>
+<li><a href="#классы-и-объекты" id="toc-классы-и-объекты"><span
+class="toc-section-number">2.1</span> Классы и объекты</a></li>
+<li><a href="#инкапсуляция" id="toc-инкапсуляция"><span
+class="toc-section-number">2.2</span> Инкапсуляция</a></li>
+<li><a href="#магические-методы" id="toc-магические-методы"><span
+class="toc-section-number">2.3</span> Магические методы</a></li>
+<li><a href="#наследование" id="toc-наследование"><span
+class="toc-section-number">2.4</span> Наследование</a></li>
+<li><a href="#методы-класса-и-статические-методы"
+id="toc-методы-класса-и-статические-методы"><span
+class="toc-section-number">2.5</span> Методы класса и статические
+методы</a></li>
+<li><a href="#классы-данных-и-__slots__"
+id="toc-классы-данных-и-__slots__"><span
+class="toc-section-number">2.6</span> Классы данных и
+<code>__slots__</code></a></li>
+</ul></li>
+<li><a href="#измерение-производительности"
+id="toc-измерение-производительности"><span
+class="toc-section-number">3</span> Измерение производительности</a>
+<ul>
+<li><a href="#время-выполнения-программы"
+id="toc-время-выполнения-программы"><span
+class="toc-section-number">3.1</span> Время выполнения
+программы</a></li>
+<li><a href="#профилирование" id="toc-профилирование"><span
+class="toc-section-number">3.2</span> Профилирование</a></li>
+<li><a href="#построчное-профилирование"
+id="toc-построчное-профилирование"><span
+class="toc-section-number">3.3</span> Построчное профилирование</a></li>
+</ul></li>
+<li><a href="#задание" id="toc-задание"><span
+class="toc-section-number">4</span> Задание</a>
+<ul>
+<li><a href="#часть-1.-объектно-ориентированная-организация-решения"
+id="toc-часть-1.-объектно-ориентированная-организация-решения"><span
+class="toc-section-number">4.1</span> Часть 1. Объектно-ориентированная
+организация решения</a></li>
+<li><a href="#часть-2.-производительность"
+id="toc-часть-2.-производительность"><span
+class="toc-section-number">4.2</span> Часть 2.
+Производительность</a></li>
+</ul></li>
+<li><a href="#порядок-сдачи" id="toc-порядок-сдачи"><span
+class="toc-section-number">5</span> Порядок сдачи</a>
+<ul>
+<li><a href="#возможные-вопросы" id="toc-возможные-вопросы">Возможные
+вопросы</a></li>
+<li><a href="#источники" id="toc-источники">Источники</a></li>
+</ul></li>
+</ul>
+</details>
+<button class="theme-toggle" type="button" id="theme-toggle">Тема: авто</button>
+</nav>
+<main>
+<header class="title-block">
+<div class="course">Программирование на языке Python · 2 курс</div>
+<h1 class="title">Лабораторная работа №2</h1>
+<p class="subtitle">ООП и производительность. Задача «Миллиард строк»
+(продолжение)</p>
+</header>
+<h1 data-number="1" id="общие-положения"><span
+class="header-section-number">1</span> Общие положения</h1>
+<h2 data-number="1.1" id="цель-работы"><span
+class="header-section-number">1.1</span> Цель работы</h2>
+<p>Работа продолжает лабораторную работу №1. Цель работы — изучение
+объектно-ориентированного программирования в Python и методов измерения
+производительности. По итогам работы студент должен:</p>
+<ul>
+<li><p>уметь проектировать классы с использованием магических методов,
+свойств и <code>dataclass</code>;</p></li>
+<li><p>уметь измерять время выполнения программы и находить узкие места
+с помощью профилировщика;</p></li>
+<li><p>понимать, от чего зависит производительность программы на
+Python.</p></li>
+</ul>
+<h1 data-number="2" id="объектно-ориентированное-программирование"><span
+class="header-section-number">2</span> Объектно-ориентированное
+программирование</h1>
+<h2 data-number="2.1" id="классы-и-объекты"><span
+class="header-section-number">2.1</span> Классы и объекты</h2>
+<div class="sourceCode" id="cb1" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Point:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    dimensions <span class="op">=</span> <span class="dv">2</span>                      <span class="co"># атрибут класса (аналог static)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, x: <span class="bu">float</span>, y: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x <span class="op">=</span> x                      <span class="co"># атрибуты экземпляра создаются присваиванием</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.y <span class="op">=</span> y</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> norm(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (<span class="va">self</span>.x <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> <span class="va">self</span>.y <span class="op">**</span> <span class="dv">2</span>) <span class="op">**</span> <span class="fl">0.5</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> Point(<span class="dv">3</span>, <span class="dv">4</span>)         <span class="co"># оператор new не используется</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(p.norm())         <span class="co"># 5.0</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(Point.dimensions, p.dimensions)</span></code></pre></div>
+<ul>
+<li><p><code>__init__</code> — инициализатор. Перегрузка конструкторов
+не поддерживается; вместо неё используются значения аргументов по
+умолчанию или альтернативные конструкторы на основе
+<code>@classmethod</code>.</p></li>
+<li><p><code>self</code> — явный аналог <code>this</code>. Он передаётся
+первым аргументом в каждый метод; обращение к атрибутам выполняется
+только через него: <code>self.x</code>, а не <code>x</code>.</p></li>
+<li><p>Поля в теле класса не объявляются: атрибут появляется при первом
+присваивании. Принято создавать все атрибуты в
+<code>__init__</code>.</p></li>
+<li><p>Деструктор в привычном для C++ смысле отсутствует; освобождение
+ресурсов выполняется с помощью <code>with</code>.</p></li>
+</ul>
+<h2 data-number="2.2" id="инкапсуляция"><span
+class="header-section-number">2.2</span> Инкапсуляция</h2>
+<p>Модификаторы доступа в Python отсутствуют; вместо них используются
+соглашения об именах:</p>
+<ul>
+<li><p><code>self.name</code> — публичный атрибут (public);</p></li>
+<li><p><code>self._name</code> — внутренний атрибут (protected), не
+предназначенный для использования вне класса. Технически он доступен, но
+обращение к нему извне считается нарушением соглашения;</p></li>
+<li><p><code>self.__name</code> — приватный атрибут (private);
+использование из вне через прямое имя невозможно — имя атрибута
+подвергается искажению (name mangling) в <code>_Class__name</code> для
+предотвращения конфликтов имён в подклассах. Применяется редко.</p></li>
+</ul>
+<p>Вместо пар методов <code>getX()/setX()</code> используются
+<strong>свойства</strong> (properties): для внешнего кода свойство
+выглядит как обычный атрибут, но при обращении к нему вызывается
+метод.</p>
+<div class="sourceCode" id="cb2" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Temperature:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, celsius: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.celsius <span class="op">=</span> celsius          <span class="co"># вызывается сеттер, определённый ниже</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@property</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> celsius(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._celsius</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@celsius.setter</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> celsius(<span class="va">self</span>, value: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> value <span class="op">&lt;</span> <span class="op">-</span><span class="fl">273.15</span>:</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&quot;температура ниже абсолютного нуля&quot;</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._celsius <span class="op">=</span> value</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@property</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> fahrenheit(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:      <span class="co"># свойство только для чтения</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._celsius <span class="op">*</span> <span class="dv">9</span> <span class="op">/</span> <span class="dv">5</span> <span class="op">+</span> <span class="dv">32</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Temperature(<span class="dv">20</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>t.celsius <span class="op">=</span> <span class="dv">25</span>          <span class="co"># проверка выполняется в сеттере</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(t.fahrenheit)     <span class="co"># 77.0</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># t.fahrenheit = 0      # AttributeError: сеттер не определён</span></span></code></pre></div>
+<h2 data-number="2.3" id="магические-методы"><span
+class="header-section-number">2.3</span> Магические методы</h2>
+<p>Методы, имена которых начинаются и заканчиваются двойным
+подчёркиванием (<em>dunder</em>-методы), вызываются интерпретатором при
+участии объекта во встроенных операциях. Механизм аналогичен перегрузке
+операторов в C++, но охватывает более широкий круг операций:
+преобразование в строку, получение длины, итерацию, проверку вхождения
+и т. д.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><span
+class="roman"><strong>Метод</strong></span></th>
+<th style="text-align: left;"><span class="roman"><strong>Вызывается
+при</strong></span></th>
+<th style="text-align: left;"><strong>Аналог в C++</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>__repr__(self)</code></td>
+<td
+style="text-align: left;"><code>repr(x), в REPL, в отладчике</code></td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__str__(self)</code></td>
+<td style="text-align: left;"><code>str(x), print(x), f"{x}"</code></td>
+<td style="text-align: left;"><code>operator&lt;&lt;</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__eq__(self, other)</code></td>
+<td style="text-align: left;"><code>x == y</code></td>
+<td style="text-align: left;"><code>operator==</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__lt__(self, other)</code></td>
+<td style="text-align: left;"><code>x &lt; y, sorted()</code></td>
+<td style="text-align: left;"><code>operator&lt;</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__hash__(self)</code></td>
+<td style="text-align: left;"><code>ключ dict, элемент set</code></td>
+<td style="text-align: left;"><code>std::hash</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__len__(self)</code></td>
+<td style="text-align: left;"><code>len(x)</code></td>
+<td style="text-align: left;"><code>size()</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__getitem__(self, i)</code></td>
+<td style="text-align: left;"><code>x[i]</code></td>
+<td style="text-align: left;"><code>operator[]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__setitem__(self, i, v)</code></td>
+<td style="text-align: left;"><code>x[i] = v</code></td>
+<td style="text-align: left;"><code>operator[]</code> (lvalue)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__contains__(self, v)</code></td>
+<td style="text-align: left;"><code>v in x</code></td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__iter__(self)</code></td>
+<td style="text-align: left;"><code>for v in x</code></td>
+<td style="text-align: left;"><code>begin()/end()</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__add__(self, other)</code></td>
+<td style="text-align: left;"><code>x + y</code></td>
+<td style="text-align: left;"><code>operator+</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__iadd__(self, other)</code></td>
+<td style="text-align: left;"><code>x += y</code></td>
+<td style="text-align: left;"><code>operator+=</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__mul__(self, other)</code></td>
+<td style="text-align: left;"><code>x * y</code></td>
+<td style="text-align: left;"><code>operator*</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>__bool__(self)</code></td>
+<td style="text-align: left;"><code>if x:</code></td>
+<td style="text-align: left;"><code>explicit operator bool</code></td>
+</tr>
+</tbody>
+</table>
+<p>Пример — вектор на плоскости:</p>
+<div class="sourceCode" id="cb3" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Vec2:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, x: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.0</span>, y: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.0</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x, <span class="va">self</span>.y <span class="op">=</span> x, y</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f&quot;Vec2(</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>x<span class="sc">!r}</span><span class="ss">, </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>y<span class="sc">!r}</span><span class="ss">)&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__eq__</span>(<span class="va">self</span>, other: <span class="bu">object</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(other, Vec2):</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">NotImplemented</span>       <span class="co"># сравнение с этим типом не поддерживается</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.x <span class="op">==</span> other.x <span class="kw">and</span> <span class="va">self</span>.y <span class="op">==</span> other.y</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, other: <span class="st">&quot;Vec2&quot;</span>) <span class="op">-&gt;</span> <span class="st">&quot;Vec2&quot;</span>:</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> Vec2(<span class="va">self</span>.x <span class="op">+</span> other.x, <span class="va">self</span>.y <span class="op">+</span> other.y)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>, k: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="st">&quot;Vec2&quot;</span>:      <span class="co"># v * 3</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> Vec2(<span class="va">self</span>.x <span class="op">*</span> k, <span class="va">self</span>.y <span class="op">*</span> k)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__rmul__</span>(<span class="va">self</span>, k: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="st">&quot;Vec2&quot;</span>:     <span class="co"># 3 * v</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span> <span class="op">*</span> k</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__abs__</span>(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (<span class="va">self</span>.x <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> <span class="va">self</span>.y <span class="op">**</span> <span class="dv">2</span>) <span class="op">**</span> <span class="fl">0.5</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__iter__</span>(<span class="va">self</span>):                         <span class="co"># позволяет распаковку x, y = v</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> <span class="va">self</span>.x</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> <span class="va">self</span>.y</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> Vec2(<span class="dv">1</span>, <span class="dv">2</span>) <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> Vec2(<span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(v)                <span class="co"># Vec2(4, 2)</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> v</span></code></pre></div>
+<ul>
+<li><p><code>__repr__</code> возвращает однозначное представление
+объекта для разработчика, в идеале — выражение, по которому объект можно
+воссоздать. Метод рекомендуется определять во всех классах.</p></li>
+<li><p>Если <code>__str__</code> не определён, функция
+<code>print</code> использует <code>__repr__</code>.</p></li>
+<li><p>При определении <code>__eq__</code> хеш-функция по умолчанию
+отключается, и объект не может быть ключом словаря, пока не определён
+<code>__hash__</code>.</p></li>
+<li><p>Ключевое слово <code>yield</code> превращает функцию в
+<em>генератор</em>, выдающий значения по одному по мере запроса. Это
+наиболее простой способ реализовать <code>__iter__</code>.</p></li>
+</ul>
+<h2 data-number="2.4" id="наследование"><span
+class="header-section-number">2.4</span> Наследование</h2>
+<div class="sourceCode" id="cb4" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Shape:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.name <span class="op">=</span> name</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> area(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">NotImplementedError</span>       <span class="co"># аналог чисто виртуального метода</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span><span class="bu">type</span>(<span class="va">self</span>)<span class="sc">.</span><span class="va">__name__</span><span class="sc">}</span><span class="ss">(</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>name<span class="sc">!r}</span><span class="ss">, area=</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>area()<span class="sc">:.2f}</span><span class="ss">)&quot;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Circle(Shape):</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, r: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(<span class="st">&quot;круг&quot;</span>)        <span class="co"># вызов инициализатора базового класса</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.r <span class="op">=</span> r</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> area(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:            <span class="co"># переопределение метода</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fl">3.14159</span> <span class="op">*</span> <span class="va">self</span>.r <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Square(Shape):</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, a: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(<span class="st">&quot;квадрат&quot;</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.a <span class="op">=</span> a</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> area(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.a <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>shapes <span class="op">=</span> [Circle(<span class="dv">1</span>), Square(<span class="dv">2</span>)]</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sum</span>(s.area() <span class="cf">for</span> s <span class="kw">in</span> shapes))</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">isinstance</span>(shapes[<span class="dv">0</span>], Shape))    <span class="co"># True</span></span></code></pre></div>
+<p>Все методы в Python ведут себя как виртуальные: вызов
+<code>s.area()</code> всегда разрешается по фактическому классу объекта,
+ключевые слова <code>virtual</code> и <code>override</code> отсутствуют.
+Поддерживается множественное наследование; порядок поиска методов (MRO)
+доступен через атрибут <code>Circle.__mro__</code>.</p>
+<p><strong>Утиная типизация.</strong> Для использования объекта в
+функции не требуется его наследование от определённого класса —
+достаточно наличия необходимых методов. Объект с методами
+<code>__len__</code> и <code>__getitem__</code> поддерживает
+<code>len()</code> и индексацию, объект с методом
+<code>__iter__</code> — обход циклом <code>for</code>.</p>
+<h2 data-number="2.5" id="методы-класса-и-статические-методы"><span
+class="header-section-number">2.5</span> Методы класса и статические
+методы</h2>
+<div class="sourceCode" id="cb5" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Date:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, year: <span class="bu">int</span>, month: <span class="bu">int</span>, day: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.year, <span class="va">self</span>.month, <span class="va">self</span>.day <span class="op">=</span> year, month, day</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@classmethod</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> from_string(cls, s: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="st">&quot;Date&quot;</span>:     <span class="co"># альтернативный конструктор</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        year, month, day <span class="op">=</span> (<span class="bu">int</span>(part) <span class="cf">for</span> part <span class="kw">in</span> s.split(<span class="st">&quot;-&quot;</span>))</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> cls(year, month, day)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> is_leap(year: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:             <span class="co"># функция в пространстве имён класса</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> year <span class="op">%</span> <span class="dv">4</span> <span class="op">==</span> <span class="dv">0</span> <span class="kw">and</span> (year <span class="op">%</span> <span class="dv">100</span> <span class="op">!=</span> <span class="dv">0</span> <span class="kw">or</span> year <span class="op">%</span> <span class="dv">400</span> <span class="op">==</span> <span class="dv">0</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> Date.from_string(<span class="st">&quot;2026-09-01&quot;</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>Date.is_leap(<span class="dv">2028</span>)</span></code></pre></div>
+<h2 data-number="2.6" id="классы-данных-и-__slots__"><span
+class="header-section-number">2.6</span> Классы данных и
+<code>__slots__</code></h2>
+<p>Для классов, предназначенных преимущественно для хранения данных,
+декоратор <code>@dataclass</code> генерирует методы
+<code>__init__</code>, <code>__repr__</code> и <code>__eq__</code> по
+аннотациям полей:</p>
+<div class="sourceCode" id="cb6" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dataclasses <span class="im">import</span> dataclass, field</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">@dataclass</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Student:</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    group: <span class="bu">int</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    grades: <span class="bu">list</span>[<span class="bu">int</span>] <span class="op">=</span> field(default_factory<span class="op">=</span><span class="bu">list</span>)    <span class="co"># не grades=[]</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> average(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">sum</span>(<span class="va">self</span>.grades) <span class="op">/</span> <span class="bu">len</span>(<span class="va">self</span>.grades) <span class="cf">if</span> <span class="va">self</span>.grades <span class="cf">else</span> <span class="fl">0.0</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> Student(<span class="st">&quot;Анна&quot;</span>, <span class="dv">2</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s)        <span class="co"># Student(name=&#39;Анна&#39;, group=2, grades=[])</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="at">@dataclass</span>(frozen<span class="op">=</span><span class="va">True</span>)         <span class="co"># неизменяемый класс, получает __hash__</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Coord:</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    lat: <span class="bu">float</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    lon: <span class="bu">float</span></span></code></pre></div>
+<p>По умолчанию атрибуты объекта хранятся в словаре
+<code>obj.__dict__</code>, что позволяет добавлять их динамически, но
+увеличивает расход памяти и время доступа. Объявление
+<code>__slots__</code> заменяет словарь фиксированным набором полей,
+аналогично <code>struct</code> в C++. В примере ниже объём памяти
+измеряется модулем <code>tracemalloc</code> по 100 000 объектов (в
+значение входит и 8-байтная ссылка на объект в списке); функция
+<code>sys.getsizeof</code> для такого сравнения не подходит, поскольку
+не учитывает память, занятую атрибутами.</p>
+<div class="sourceCode" id="cb7" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tracemalloc</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dataclasses <span class="im">import</span> dataclass</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Pixel:                    <span class="co"># атрибуты хранятся в __dict__</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, x: <span class="bu">int</span>, y: <span class="bu">int</span>, color: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x, <span class="va">self</span>.y, <span class="va">self</span>.color <span class="op">=</span> x, y, color</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SlotPixel:                <span class="co"># фиксированный набор полей</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="va">__slots__</span> <span class="op">=</span> (<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>, <span class="st">&quot;color&quot;</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, x: <span class="bu">int</span>, y: <span class="bu">int</span>, color: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x, <span class="va">self</span>.y, <span class="va">self</span>.color <span class="op">=</span> x, y, color</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> SlotPixel(<span class="dv">1</span>, <span class="dv">2</span>, <span class="bn">0xFF0000</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># p.alpha = 1    # AttributeError: атрибут отсутствует в __slots__</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="at">@dataclass</span>(slots<span class="op">=</span><span class="va">True</span>)          <span class="co"># аналогичный результат для dataclass</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Pixel2:</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    x: <span class="bu">int</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    y: <span class="bu">int</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    color: <span class="bu">int</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bytes_per_object(cls: <span class="bu">type</span>, n: <span class="bu">int</span> <span class="op">=</span> <span class="dv">100_000</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    tracemalloc.start()         <span class="co"># учёт всей памяти, выделяемой интерпретатором</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    objects <span class="op">=</span> [cls(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n)]</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    used, _ <span class="op">=</span> tracemalloc.get_traced_memory()</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    tracemalloc.stop()</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> used <span class="op">/</span> <span class="bu">len</span>(objects)</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Pixel:     </span><span class="sc">{</span>bytes_per_object(Pixel)<span class="sc">:.0f}</span><span class="ss"> байт&quot;</span>)</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;SlotPixel: </span><span class="sc">{</span>bytes_per_object(SlotPixel)<span class="sc">:.0f}</span><span class="ss"> байт&quot;</span>)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Вывод (Python 3.13, 64-битная платформа):</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Pixel:     104 байт</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="co"># SlotPixel: 64 байт</span></span></code></pre></div>
+<h1 data-number="3" id="измерение-производительности"><span
+class="header-section-number">3</span> Измерение производительности</h1>
+<h2 data-number="3.1" id="время-выполнения-программы"><span
+class="header-section-number">3.1</span> Время выполнения программы</h2>
+<div class="sourceCode" id="cb8" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> time uv run main.py measurements_10m.txt <span class="op">&gt;</span> /dev/null</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">real</span>    0m4.512s      <span class="co"># время выполнения программы</span></span></code></pre></div>
+<p>Измерение выполняется несколько раз: первый запуск может быть
+медленнее, пока файл не загружен в кеш операционной системы. Время
+выполнения отдельного участка кода измеряется функцией
+<code>time.perf_counter()</code>: она возвращает показания монотонного
+таймера высокого разрешения в секундах, поэтому значение имеет только
+разность двух показаний.</p>
+<div class="sourceCode" id="cb9" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> time.perf_counter()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>total <span class="op">=</span> <span class="bu">sum</span>(i <span class="op">*</span> i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10_000_000</span>))</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>elapsed <span class="op">=</span> time.perf_counter() <span class="op">-</span> start</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Сумма вычислена за </span><span class="sc">{</span>elapsed<span class="sc">:.3f}</span><span class="ss"> с&quot;</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Сумма вычислена за 0.494 с</span></span></code></pre></div>
+<h2 data-number="3.2" id="профилирование"><span
+class="header-section-number">3.2</span> Профилирование</h2>
+<p>Для определения участков программы, на которые приходится основное
+время выполнения, используется профилировщик из стандартной
+библиотеки:</p>
+<div class="sourceCode" id="cb10" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv run python <span class="at">-m</span> cProfile <span class="at">-s</span> tottime main.py measurements_1m.txt <span class="kw">|</span> <span class="fu">head</span> <span class="at">-20</span></span></code></pre></div>
+<p>Столбец <code>tottime</code> содержит время выполнения внутри самой
+функции, <code>ncalls</code> — число вызовов.</p>
+<p>Столбец <code>cumtime</code> содержит время выполнения функции вместе
+со всеми вызванными из неё функциями. Профилировщик сам замедляет
+программу, поэтому его результаты используются для поиска узких мест, а
+не для измерения итогового времени.</p>
+<h2 data-number="3.3" id="построчное-профилирование"><span
+class="header-section-number">3.3</span> Построчное профилирование</h2>
+<p>Профилировщик <code>cProfile</code> указывает функцию, на которую
+приходится основное время, но не строку внутри неё. Время выполнения
+каждой строки функции измеряет пакет <code>line_profiler</code>. Пакет
+не входит в стандартную библиотеку и добавляется как зависимость для
+разработки:</p>
+<div class="sourceCode" id="cb11" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv add <span class="at">--dev</span> line_profiler</span></code></pre></div>
+<p>Исследуемая функция помечается декоратором <code>@profile</code>:</p>
+<div class="sourceCode" id="cb12" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> line_profiler <span class="im">import</span> profile</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="at">@profile</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> primes(n: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">int</span>]:</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> []</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, n):</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>        is_prime <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, <span class="bu">int</span>(k<span class="op">**</span><span class="fl">0.5</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> k <span class="op">%</span> d <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>                is_prime <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> is_prime:</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>            result.append(k)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="bu">len</span>(primes(<span class="dv">100_000</span>)))</span></code></pre></div>
+<p>Без переменной окружения <code>LINE_PROFILE</code> декоратор ничего
+не делает, и программа выполняется как обычно. При запуске с
+<code>LINE_PROFILE=1</code> результаты измерений записываются в файл
+<code>profile_output.txt</code> в текущем каталоге:</p>
+<div class="sourceCode" id="cb13" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> LINE_PROFILE=1 uv run primes.py</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">9592</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Wrote</span> profile results to profile_output.txt</span></code></pre></div>
+<p>Содержимое <code>profile_output.txt</code>:</p>
+<pre class="text" data-language="text"><code>Timer unit: 1e-09 s
+
+Total time: 0.918304 s
+File: /home/student/lab1/primes.py
+Function: primes at line 4
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     4                                           @profile
+     5                                           def primes(n: int) -&gt; list[int]:
+     6         1          0.0      0.0      0.0      result = []
+     7     99999   17678000.0    176.8      1.9      for k in range(2, n):
+     8     99998   14904000.0    149.0      1.6          is_prime = True
+     9   2755285  419914000.0    152.4     45.7          for d in range(2, int(k**0.5) + 1):
+    10   2745693  421922000.0    153.7     45.9              if k % d == 0:
+    11     90406   13286000.0    147.0      1.4                  is_prime = False
+    12     90406   13504000.0    149.4      1.5                  break
+    13     99998   15337000.0    153.4      1.7          if is_prime:
+    14      9592    1755000.0    183.0      0.2              result.append(k)
+    15         1       4000.0   4000.0      0.0      return result</code></pre>
+<p>Столбец <code>Hits</code> содержит число выполнений строки,
+<code>Time</code> — суммарное время её выполнения в единицах
+<code>Timer unit</code>, <code>Per Hit</code> — среднее время одного
+выполнения, <code>% Time</code> — долю от общего времени функции. В
+приведённом примере более 90 % времени приходится на внутренний цикл
+(строки 9 и 10). Как и <code>cProfile</code>, построчный профилировщик
+замедляет программу; декораторы <code>@profile</code> удаляются из кода
+после завершения анализа.</p>
+<h1 data-number="4" id="задание"><span
+class="header-section-number">4</span> Задание</h1>
+<p>Работа продолжает лабораторную работу №1 и выполняется в том же
+репозитории. Условие задачи &lt;&lt;Миллиард строк&gt;&gt;, форматы
+входных и выходных данных и материалы каталога <code>data/</code>
+приведены в описании лабораторной работы №1. Работа состоит из двух
+частей, обе обязательны.</p>
+<h2 data-number="4.1"
+id="часть-1.-объектно-ориентированная-организация-решения"><span
+class="header-section-number">4.1</span> Часть 1.
+Объектно-ориентированная организация решения</h2>
+<ol>
+<li><p><strong>Класс <code>StationStats</code></strong> (файл
+<code>stats.py</code>) хранит статистику одной станции и
+предоставляет:</p>
+<ul>
+<li><p>метод <code>update(value)</code> — учёт очередного
+измерения;</p></li>
+<li><p>метод <code>merge(other)</code> — объединение со статистикой
+другого объекта <code>StationStats</code> по той же станции;</p></li>
+<li><p>свойства <code>min</code>, <code>max</code>, <code>mean</code>,
+<code>count</code>, доступные только для чтения;</p></li>
+<li><p>метод <code>__repr__</code>, возвращающий строку
+<code>min;mean;max</code> в формате вывода.</p></li>
+</ul></li>
+<li><p>Решение лабораторной работы №1 использует класс
+<code>StationStats</code> для хранения и объединения статистики станций.
+Интерфейс командной строки и формат вывода не меняются;
+<code>check.py</code> по-прежнему выводит <code>OK</code>.</p></li>
+</ol>
+<h2 data-number="4.2" id="часть-2.-производительность"><span
+class="header-section-number">4.2</span> Часть 2.
+Производительность</h2>
+<ol>
+<li><p>Для исходной версии решения выполняется профилирование; в
+<code>README.md</code> приводятся первые строки отчёта и вывод о том, на
+что приходится основное время выполнения.</p></li>
+<li><p>Решение последовательно ускоряется с контролем времени
+выполнения. В <code>README.md</code> приводится таблица не менее чем для
+трёх версий программы: для каждой версии указываются внесённые изменения
+и время обработки файлов из 10 млн и 100 млн строк. Каждая версия
+фиксируется отдельным коммитом.</p></li>
+<li><p>Все версии остаются корректными (<code>check.py</code> выводит
+<code>OK</code>) и соблюдают требования части 1.</p></li>
+</ol>
+<h1 data-number="5" id="порядок-сдачи"><span
+class="header-section-number">5</span> Порядок сдачи</h1>
+<p>До защиты преподавателю направляется ссылка на репозиторий GitHub.
+Доступность ссылки проверяется без входа в учётную запись (например, в
+приватном окне браузера); для приватного репозитория проверяется наличие
+преподавателя в списке Collaborators. Сданное состояние репозитория
+помечается тегом <code>lab2</code> и публикуется на GitHub аналогично
+лабораторной работе №1; проверке подлежит именно оно.</p>
+<p>На защите студент:</p>
+<ol>
+<li><p>демонстрирует историю коммитов, содержащую отдельные версии
+решения;</p></li>
+<li><p>запускает <code>check.py</code> на файле
+<code>measurements_100k</code>;</p></li>
+<li><p>представляет таблицу замеров и обосновывает влияние каждого
+изменения на время выполнения;</p></li>
+<li><p>отвечает на вопросы по коду.</p></li>
+</ol>
+<h2 class="unnumbered" id="возможные-вопросы">Возможные вопросы</h2>
+<ol>
+<li><p>Является ли метод <code>__init__</code> конструктором? Для чего
+предназначен метод <code>__new__</code>? Каким образом в Python
+реализуются альтернативные конструкторы?</p></li>
+<li><p>Каким образом в Python реализуется инкапсуляция? Для чего
+используется <code>@property</code>?</p></li>
+<li><p>Что происходит, если в классе определён <code>__eq__</code>, но
+не определён <code>__hash__</code>?</p></li>
+<li><p>Чем различаются <code>__repr__</code> и <code>__str__</code>?
+Какой из методов вызывает <code>print</code>?</p></li>
+<li><p>Что означает <code>return NotImplemented</code> в
+<code>__eq__</code> или <code>__add__</code>? Для чего нужен
+<code>__rmul__</code>?</p></li>
+<li><p>Чем <code>@classmethod</code> отличается от
+<code>@staticmethod</code> и от обычного метода?</p></li>
+<li><p>Что такое утиная типизация? Приведите пример из стандартной
+библиотеки.</p></li>
+<li><p>Что даёт объявление <code>__slots__</code> и какие ограничения
+оно накладывает?</p></li>
+<li><p>Какое изменение в решении задачи дало наибольший прирост
+производительности и почему?</p></li>
+</ol>
+<h2 class="unnumbered" id="источники">Источники</h2>
+<ul>
+<li><p>Модель данных Python (магические методы): <a
+href="https://docs.python.org/3.13/reference/datamodel.html"
+class="uri">https://docs.python.org/3.13/reference/datamodel.html</a></p></li>
+<li><p>Профилировщики Python: <a
+href="https://docs.python.org/3.13/library/profile.html"
+class="uri">https://docs.python.org/3.13/library/profile.html</a></p></li>
+<li><p>Документация line_profiler: <a
+href="https://kernprof.readthedocs.io/en/latest/manual/index.html"
+class="uri">https://kernprof.readthedocs.io/en/latest/manual/index.html</a></p></li>
+<li><p>One Billion Row Challenge: <a
+href="https://github.com/gunnarmorling/1brc"
+class="uri">https://github.com/gunnarmorling/1brc</a></p></li>
+</ul>
+</main>
+</div>
+<script>
+(function () {
+  // Кнопка «Копировать» у каждого блока кода.
+  // В блоках командной строки копируются только команды, без приглашения "$ " и вывода.
+  var PROMPT = /^(?:\(\.venv\) )?[$>] /;
+
+  function textFor(block) {
+    var code = block.querySelector("code");
+    var text = code.textContent.replace(/\n$/, "");
+    if (block.getAttribute("data-language") === "bash") {
+      var lines = text.split("\n");
+      if (lines.some(function (l) { return PROMPT.test(l); })) {
+        text = lines
+          .filter(function (l) { return PROMPT.test(l); })
+          .map(function (l) { return l.replace(PROMPT, ""); })
+          .join("\n");
+      }
+    }
+    return text + "\n";
+  }
+
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand("copy"); } finally { document.body.removeChild(area); }
+    return Promise.resolve();
+  }
+
+  document.querySelectorAll("div.sourceCode").forEach(function (block) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "copy-btn";
+    btn.textContent = "Копировать";
+    btn.addEventListener("click", function () {
+      copy(textFor(block)).then(function () {
+        btn.textContent = "Скопировано";
+        btn.classList.add("done");
+        setTimeout(function () { btn.textContent = "Копировать"; btn.classList.remove("done"); }, 1500);
+      });
+    });
+    block.appendChild(btn);
+  });
+
+  // Переключатель темы: авто -> светлая -> тёмная.
+  var modes = ["auto", "light", "dark"];
+  var names = { auto: "авто", light: "светлая", dark: "тёмная" };
+  var toggle = document.getElementById("theme-toggle");
+  function apply(mode) {
+    if (mode === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", mode);
+    toggle.textContent = "Тема: " + names[mode];
+  }
+  var current = "auto";
+  try { current = localStorage.getItem("theme") || "auto"; } catch (e) {}
+  apply(current);
+  toggle.addEventListener("click", function () {
+    current = modes[(modes.indexOf(current) + 1) % modes.length];
+    apply(current);
+    try { localStorage.setItem("theme", current); } catch (e) {}
+  });
+
+  // На узком экране оглавление свёрнуто по умолчанию.
+  if (window.matchMedia("(max-width: 900px)").matches) {
+    document.querySelector("nav#toc details").removeAttribute("open");
+  }
+})();
+</script>
+</body>
+</html>

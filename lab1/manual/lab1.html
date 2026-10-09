@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лабораторная работа №1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Mono&family=PT+Sans:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #1d1f23;
+  --muted: #5d6470;
+  --line: #e3e6eb;
+  --accent: #1f4f99;
+  --code-bg: #f5f6f8;
+  --inline-code-bg: #eef0f3;
+  --btn-bg: #ffffff;
+  --btn-fg: #3b414b;
+  --kw: #0033b3;
+  --st: #067d17;
+  --co: #8c8c8c;
+  --nu: #1750eb;
+  --fu: #00627a;
+  --bu: #871094;
+  --op: #1d1f23;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17191d;
+    --fg: #e4e6ea;
+    --muted: #9aa1ad;
+    --line: #2d3138;
+    --accent: #7eb0ff;
+    --code-bg: #1f2227;
+    --inline-code-bg: #262a30;
+    --btn-bg: #2a2e35;
+    --btn-fg: #d5d9df;
+    --kw: #cf8e6d;
+    --st: #6aab73;
+    --co: #7a7e85;
+    --nu: #2aacb8;
+    --fu: #56a8f5;
+    --bu: #c77dbb;
+    --op: #e4e6ea;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17191d; --fg: #e4e6ea; --muted: #9aa1ad; --line: #2d3138; --accent: #7eb0ff;
+  --code-bg: #1f2227; --inline-code-bg: #262a30; --btn-bg: #2a2e35; --btn-fg: #d5d9df;
+  --kw: #cf8e6d; --st: #6aab73; --co: #7a7e85; --nu: #2aacb8; --fu: #56a8f5; --bu: #c77dbb; --op: #e4e6ea;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 17px/1.6 "PT Serif", Georgia, serif;
+  -webkit-text-size-adjust: 100%;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 48px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+nav#toc {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding: 32px 0;
+  font: 14px/1.45 "PT Sans", system-ui, sans-serif;
+}
+nav#toc .toc-title {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+nav#toc ul { list-style: none; margin: 0; padding: 0; }
+nav#toc li { margin: 3px 0; }
+nav#toc ul ul { padding-left: 14px; margin: 3px 0 8px; }
+nav#toc a { color: var(--fg); }
+nav#toc a:hover { color: var(--accent); text-decoration: none; }
+nav#toc ul ul a { color: var(--muted); }
+nav#toc .toc-section-number { color: var(--muted); margin-right: 6px; }
+
+main { padding: 40px 0 96px; min-width: 0; max-width: 780px; }
+header.title-block { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+header .course { font: 14px "PT Sans", sans-serif; color: var(--muted); }
+header h1.title { font: 700 34px/1.2 "PT Sans", sans-serif; margin: 8px 0 6px; }
+header .subtitle { font: 20px/1.35 "PT Sans", sans-serif; color: var(--muted); margin: 0; }
+
+h1, h2, h3, h4 { font-family: "PT Sans", system-ui, sans-serif; line-height: 1.25; scroll-margin-top: 16px; }
+main h1 { font-size: 28px; margin: 56px 0 16px; }
+main h2 { font-size: 22px; margin: 40px 0 12px; }
+main h3 { font-size: 18px; margin: 28px 0 8px; }
+.header-section-number { color: var(--muted); margin-right: 10px; }
+
+p, li { overflow-wrap: break-word; }
+ul, ol { padding-left: 1.4em; }
+li > p { margin: .3em 0; }
+
+code {
+  font-family: "PT Mono", ui-monospace, Menlo, monospace;
+  font-size: .9em;
+}
+:not(pre) > code {
+  background: var(--inline-code-bg);
+  padding: .08em .3em;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+
+div.sourceCode {
+  position: relative;
+  margin: 14px 0 18px;
+  background: var(--code-bg);
+  border-radius: 6px;
+}
+div.sourceCode pre {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  line-height: 1.45;
+  font-size: 15px;
+}
+pre > code.sourceCode > span { display: inline-block; min-width: 100%; }
+pre > code.sourceCode > span > a:first-child::before { content: none; }
+.copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font: 12px "PT Sans", system-ui, sans-serif;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s;
+}
+div.sourceCode:hover .copy-btn, .copy-btn:focus-visible, .copy-btn.done { opacity: 1; }
+@media (hover: none) { .copy-btn { opacity: 1; } }
+
+code span.kw, code span.cf, code span.im { color: var(--kw); font-weight: 700; }
+code span.dt, code span.bu { color: var(--bu); }
+code span.st, code span.ch, code span.ss, code span.vs, code span.sc { color: var(--st); }
+code span.co, code span.do, code span.an, code span.cv, code span.in { color: var(--co); font-style: italic; }
+code span.dv, code span.fl, code span.bn, code span.cn { color: var(--nu); }
+code span.fu { color: var(--fu); }
+code span.op { color: var(--op); }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0 22px;
+  font-size: 15px;
+  display: block;
+  overflow-x: auto;
+}
+th, td { padding: 6px 12px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left !important; }
+thead th { border-bottom: 2px solid var(--fg); font-family: "PT Sans", sans-serif; }
+
+.theme-toggle {
+  margin-top: 20px;
+  font: 13px "PT Sans", sans-serif;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 5px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .layout { display: block; padding: 0 16px; }
+  nav#toc { position: static; max-height: none; padding: 20px 0 0; }
+  nav#toc details:not([open]) ul { display: none; }
+  main { padding-top: 16px; }
+  header h1.title { font-size: 28px; }
+  div.sourceCode pre { font-size: 13.5px; }
+}
+@media print {
+  nav#toc, .copy-btn { display: none; }
+  .layout { display: block; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav id="toc">
+<details open>
+<summary class="toc-title">Содержание</summary>
+<ul>
+<li><a href="#общие-положения" id="toc-общие-положения"><span
+class="toc-section-number">1</span> Общие положения</a>
+<ul>
+<li><a href="#цель-работы" id="toc-цель-работы"><span
+class="toc-section-number">1.1</span> Цель работы</a></li>
+</ul></li>
+<li><a href="#рабочее-окружение" id="toc-рабочее-окружение"><span
+class="toc-section-number">2</span> Рабочее окружение</a>
+<ul>
+<li><a href="#интерпретатор" id="toc-интерпретатор"><span
+class="toc-section-number">2.1</span> Интерпретатор</a></li>
+<li><a href="#пакеты-и-виртуальные-окружения"
+id="toc-пакеты-и-виртуальные-окружения"><span
+class="toc-section-number">2.2</span> Пакеты и виртуальные
+окружения</a></li>
+<li><a href="#sec:uv" id="toc-sec:uv"><span
+class="toc-section-number">2.3</span> Менеджер проектов uv</a></li>
+<li><a href="#sec:git" id="toc-sec:git"><span
+class="toc-section-number">2.4</span> Git и GitHub</a></li>
+</ul></li>
+<li><a href="#синтаксис-языка" id="toc-синтаксис-языка"><span
+class="toc-section-number">3</span> Синтаксис языка</a>
+<ul>
+<li><a href="#структура-программы" id="toc-структура-программы"><span
+class="toc-section-number">3.1</span> Структура программы</a></li>
+<li><a href="#переменные-объекты-и-ссылки"
+id="toc-переменные-объекты-и-ссылки"><span
+class="toc-section-number">3.2</span> Переменные, объекты и
+ссылки</a></li>
+<li><a href="#встроенные-типы" id="toc-встроенные-типы"><span
+class="toc-section-number">3.3</span> Встроенные типы</a></li>
+<li><a href="#строки" id="toc-строки"><span
+class="toc-section-number">3.4</span> Строки</a></li>
+<li><a href="#коллекции" id="toc-коллекции"><span
+class="toc-section-number">3.5</span> Коллекции</a></li>
+<li><a href="#управляющие-конструкции"
+id="toc-управляющие-конструкции"><span
+class="toc-section-number">3.6</span> Управляющие конструкции</a></li>
+<li><a href="#генераторы-коллекций" id="toc-генераторы-коллекций"><span
+class="toc-section-number">3.7</span> Генераторы коллекций</a></li>
+<li><a href="#функции" id="toc-функции"><span
+class="toc-section-number">3.8</span> Функции</a></li>
+<li><a href="#исключения" id="toc-исключения"><span
+class="toc-section-number">3.9</span> Исключения</a></li>
+<li><a href="#работа-с-файлами" id="toc-работа-с-файлами"><span
+class="toc-section-number">3.10</span> Работа с файлами</a></li>
+<li><a href="#соответствие-конструкций-c-и-python"
+id="toc-соответствие-конструкций-c-и-python"><span
+class="toc-section-number">3.11</span> Соответствие конструкций C++ и
+Python</a></li>
+</ul></li>
+<li><a href="#задание" id="toc-задание"><span
+class="toc-section-number">4</span> Задание</a>
+<ul>
+<li><a href="#часть-1.-создание-проекта"
+id="toc-часть-1.-создание-проекта"><span
+class="toc-section-number">4.1</span> Часть 1. Создание проекта</a></li>
+<li><a href="#часть-2.-задача-миллиард-строк"
+id="toc-часть-2.-задача-миллиард-строк"><span
+class="toc-section-number">4.2</span> Часть 2. Задача «Миллиард
+строк»</a></li>
+</ul></li>
+<li><a href="#порядок-сдачи" id="toc-порядок-сдачи"><span
+class="toc-section-number">5</span> Порядок сдачи</a>
+<ul>
+<li><a href="#возможные-вопросы" id="toc-возможные-вопросы">Возможные
+вопросы</a></li>
+<li><a href="#источники" id="toc-источники">Источники</a></li>
+</ul></li>
+</ul>
+</details>
+<button class="theme-toggle" type="button" id="theme-toggle">Тема: авто</button>
+</nav>
+<main>
+<header class="title-block">
+<div class="course">Программирование на языке Python · 2 курс</div>
+<h1 class="title">Лабораторная работа №1</h1>
+<p class="subtitle">Окружение, git и синтаксис Python. Задача «Миллиард
+строк»</p>
+</header>
+<h1 data-number="1" id="общие-положения"><span
+class="header-section-number">1</span> Общие положения</h1>
+<h2 data-number="1.1" id="цель-работы"><span
+class="header-section-number">1.1</span> Цель работы</h2>
+<p>Лабораторная работа предназначена для студентов, освоивших на первом
+курсе язык C++ и основы объектно-ориентированного программирования. Цель
+работы — перенос имеющихся знаний на язык Python и изучение его
+принципиальных отличий от C++. По итогам работы студент должен:</p>
+<ul>
+<li><p>уметь настраивать рабочее окружение: интерпретатор, виртуальное
+окружение, менеджер проектов <code>uv</code>;</p></li>
+<li><p>уметь вести историю проекта в git и публиковать репозиторий на
+GitHub;</p></li>
+<li><p>владеть базовым синтаксисом языка, встроенными типами данных и
+работой с файлами;</p></li>
+<li><p>уметь решать задачу обработки большого текстового файла
+средствами стандартной библиотеки.</p></li>
+</ul>
+<h1 data-number="2" id="рабочее-окружение"><span
+class="header-section-number">2</span> Рабочее окружение</h1>
+<h2 data-number="2.1" id="интерпретатор"><span
+class="header-section-number">2.1</span> Интерпретатор</h2>
+<p>Программа на C++ проходит путь <em>исходный код
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+компилятор
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+машинный код
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+запуск</em>. В основной реализации Python (CPython) отдельного этапа
+сборки нет: интерпретатор <code>python</code> компилирует исходный код в
+байт-код и сразу исполняет его на собственной виртуальной машине. Как
+следствие, ошибки, которые в C++ выявляются при компиляции (например,
+опечатка в имени переменной), в Python проявляются только при выполнении
+соответствующей строки.</p>
+<h2 data-number="2.2" id="пакеты-и-виртуальные-окружения"><span
+class="header-section-number">2.2</span> Пакеты и виртуальные
+окружения</h2>
+<p>Сторонние библиотеки устанавливаются менеджером пакетов
+<code>pip</code> из репозитория PyPI. Установка пакетов в системный
+интерпретатор приводит к конфликтам: разным проектам могут требоваться
+несовместимые версии одной библиотеки, а на macOS и Linux системный
+Python используется самой операционной системой.</p>
+<p>Для изоляции проектов применяется <strong>виртуальное
+окружение</strong> (venv) — каталог внутри проекта, содержащий ссылку на
+интерпретатор и собственный набор установленных пакетов.</p>
+<div class="sourceCode" id="cb1" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> python3 <span class="at">-m</span> venv .venv            <span class="co"># создание окружения в каталоге .venv</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> source .venv/bin/activate        <span class="co"># активация (macOS / Linux)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> .venv\Scripts\activate            <span class="co"># активация (Windows)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">.venv</span><span class="kw">)</span> <span class="ex">$</span> which python             <span class="co"># .venv/bin/python</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">.venv</span><span class="kw">)</span> <span class="ex">$</span> pip install requests     <span class="co"># пакет устанавливается только в .venv</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">.venv</span><span class="kw">)</span> <span class="ex">$</span> pip freeze <span class="op">&gt;</span> requirements.txt</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">.venv</span><span class="kw">)</span> <span class="ex">$</span> deactivate</span></code></pre></div>
+<p>Такой подход требует ручной активации окружения, ручного ведения
+списка зависимостей и отдельной установки нужной версии интерпретатора.
+В курсе вместо него используется менеджер проектов <code>uv</code>.</p>
+<h2 data-number="2.3" id="sec:uv"><span
+class="header-section-number">2.3</span> Менеджер проектов uv</h2>
+<p><a href="https://docs.astral.sh/uv/"><code>uv</code></a> — менеджер
+проектов для Python, который устанавливает интерпретаторы требуемых
+версий, создаёт виртуальные окружения, управляет зависимостями и
+запускает код. По сути он автоматизирует действия, выполняемые вручную с
+помощью <code>venv</code> и <code>pip</code>.</p>
+<h3 class="unnumbered" id="sec:uv-install">Установка</h3>
+<div class="sourceCode" id="cb2" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># macOS / Linux</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-LsSf</span> https://astral.sh/uv/install.sh <span class="kw">|</span> <span class="fu">sh</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows (PowerShell)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> powershell <span class="ex">-ExecutionPolicy</span> ByPass <span class="at">-c</span> <span class="st">&quot;irm https://astral.sh/uv/install.ps1 | iex&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv <span class="at">--version</span></span></code></pre></div>
+<h3 class="unnumbered" id="создание-проекта">Создание проекта</h3>
+<div class="sourceCode" id="cb3" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv python install 3.13           <span class="co"># установка интерпретатора Python 3.13</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv init <span class="at">--python</span> 3.13 lab1       <span class="co"># создание проекта в каталоге lab1</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd lab1</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> tree <span class="at">-a</span> <span class="at">-I</span> .git</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">.</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> .gitignore</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> .python-version                <span class="co"># версия Python для проекта</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> README.md</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> main.py</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> pyproject.toml                 <span class="co"># описание проекта и зависимостей</span></span></code></pre></div>
+<p>Файл <code>pyproject.toml</code> выполняет роль, аналогичную
+<code>CMakeLists.txt</code>: в нём указываются имя проекта, требуемая
+версия Python и список зависимостей.</p>
+<div class="sourceCode" id="cb4" data-language="toml"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[project]</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;lab1&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;0.1.0&quot;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">&quot;&gt;=3.13&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[]</span></span></code></pre></div>
+<h3 class="unnumbered" id="запуск-и-зависимости">Запуск и
+зависимости</h3>
+<div class="sourceCode" id="cb5" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv run main.py             <span class="co"># создаёт .venv при необходимости и запускает скрипт</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv add requests            <span class="co"># добавление зависимости в pyproject.toml и установка</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv remove requests         <span class="co"># удаление зависимости</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv sync                    <span class="co"># синхронизация .venv с pyproject.toml и uv.lock</span></span></code></pre></div>
+<p>После первого запуска в проекте появляются каталог <code>.venv</code>
+и файл <code>uv.lock</code>. В lock-файле фиксируются точные версии всех
+зависимостей, включая транзитивные, что обеспечивает одинаковое
+окружение у всех, кто работает с репозиторием.</p>
+<h3 class="unnumbered" id="редактор">Редактор</h3>
+<p>Для работы подходят VS Code с расширением <em>Python</em> (Microsoft)
+или PyCharm. В настройках редактора в качестве интерпретатора необходимо
+выбрать интерпретатор из каталога <code>.venv</code> проекта (в VS
+Code — команда <em>Python: Select Interpreter</em>); в противном случае
+подсказки и запуск будут использовать другое окружение.</p>
+<h2 data-number="2.4" id="sec:git"><span
+class="header-section-number">2.4</span> Git и GitHub</h2>
+<p>Все лабораторные работы курса сдаются через git-репозиторий; при
+проверке оценивается как итоговый код, так и история его изменений.
+Git — система контроля версий, которая хранит последовательность снимков
+проекта (<em>коммитов</em>) и позволяет просматривать изменения и
+возвращаться к любому из сохранённых состояний. GitHub — сервис для
+размещения git-репозиториев, доступных по ссылке.</p>
+<h3 class="unnumbered" id="установка-и-первичная-настройка">Установка и
+первичная настройка</h3>
+<p>Git устанавливается с сайта <a href="https://git-scm.com"
+class="uri">https://git-scm.com</a> (на macOS также через
+<code>xcode-select --install</code> или <code>brew install git</code>).
+Перед началом работы указываются имя и адрес электронной почты, которые
+записываются в каждый коммит:</p>
+<div class="sourceCode" id="cb6" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git config <span class="at">--global</span> user.name <span class="st">&quot;Иван Иванов&quot;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git config <span class="at">--global</span> user.email <span class="st">&quot;ivan@example.com&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git config <span class="at">--global</span> init.defaultBranch main</span></code></pre></div>
+<h3 class="unnumbered" id="основной-цикл-работы">Основной цикл
+работы</h3>
+<p>Команда <code>uv init</code> создаёт git-репозиторий в каталоге
+проекта (при его отсутствии используется <code>git init</code>). Работа
+с репозиторием строится по циклу: изменение файлов
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+просмотр изменений
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+добавление изменений в индекс
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+создание коммита.</p>
+<div class="sourceCode" id="cb7" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git status                       <span class="co"># изменённые и неотслеживаемые файлы</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git diff                         <span class="co"># содержание изменений</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git add stats.py                 <span class="co"># добавление файла в следующий коммит</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git commit <span class="at">-m</span> <span class="st">&quot;StationStats: update и merge&quot;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git log <span class="at">--oneline</span>                <span class="co"># история коммитов</span></span></code></pre></div>
+<p>Требования к истории изменений:</p>
+<ul>
+<li><p>каждый коммит содержит одно законченное по смыслу изменение
+(например, &lt;&lt;разбор строки без <code>float</code>&gt;&gt;,
+&lt;&lt;чтение файла блоками&gt;&gt;); единственный коммит со всей
+работой не считается приемлемой историей;</p></li>
+<li><p>сообщение коммита кратко описывает сделанное изменение:
+<code>"StationStats: merge"</code>, а не <code>"fix"</code> или
+<code>"asdf"</code>;</p></li>
+<li><p>перед <code>git add .</code> проверяется вывод
+<code>git status</code>, чтобы в коммит не попали лишние файлы.</p></li>
+</ul>
+<h3 class="unnumbered" id="файлы-исключаемые-из-репозитория">Файлы,
+исключаемые из репозитория</h3>
+<p>Файл <code>.gitignore</code> содержит перечень путей, которые git не
+отслеживает; <code>uv init</code> создаёт его с <code>.venv</code> и
+кешами Python.</p>
+<h3 class="unnumbered" id="публикация-на-github">Публикация на
+GitHub</h3>
+<ol>
+<li><p>Регистрация на <a href="https://github.com"
+class="uri">https://github.com</a>.</p></li>
+<li><p>Настройка доступа с компьютера. Наиболее простой способ — GitHub
+CLI: установить <code>gh</code> (<a href="https://cli.github.com"
+class="uri">https://cli.github.com</a>) и выполнить
+<code>gh auth login</code>. Альтернативный способ — SSH-ключ:
+<code>ssh-keygen -t ed25519</code>, после чего публичный ключ
+<code>~/.ssh/id_ed25519.pub</code> добавляется в <em>Settings
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+SSH and GPG keys</em>. Пароль от учётной записи для
+<code>git push</code> не используется.</p></li>
+<li><p>Создание пустого репозитория (<em>New repository</em>, без README
+и <code>.gitignore</code>, поскольку они уже созданы локально).
+Репозиторий может быть публичным или приватным.</p></li>
+<li><p>Связывание локального репозитория с удалённым и отправка
+коммитов:</p>
+<div class="sourceCode" id="cb8" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git remote add origin git@github.com:<span class="op">&lt;</span>логин<span class="op">&gt;</span>/python-lab1.git</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git push <span class="at">-u</span> origin main          <span class="co"># первая отправка; далее достаточно git push</span></span></code></pre></div>
+<p>При использовании <code>gh</code> шаги 3–4 выполняются одной
+командой:
+<code>gh repo create python-lab1 --private --source=. --push</code>.</p></li>
+</ol>
+<h1 data-number="3" id="синтаксис-языка"><span
+class="header-section-number">3</span> Синтаксис языка</h1>
+<h2 data-number="3.1" id="структура-программы"><span
+class="header-section-number">3.1</span> Структура программы</h2>
+<div class="sourceCode" id="cb9" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> greet(name: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f&quot;Привет, </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">!&quot;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> who <span class="kw">in</span> [<span class="st">&quot;мир&quot;</span>, <span class="st">&quot;БГУ&quot;</span>]:</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(greet(who))</span></code></pre></div>
+<p>Основные отличия от C++:</p>
+<ul>
+<li><p><strong>блоки кода задаются отступами</strong>, а не фигурными
+скобками; двоеточие открывает блок. Стандартный отступ — 4
+пробела;</p></li>
+<li><p>точка с запятой в конце инструкции не ставится, типы переменных
+не объявляются;</p></li>
+<li><p><code>name: str</code> и <code>-&gt; str</code> — <em>аннотации
+типов</em> (type hints). Интерпретатор их не проверяет: они служат
+документацией и используются редактором для подсказок. Проверку
+соответствия типов выполняют отдельные инструменты статического анализа
+(например, <code>mypy</code>), которые рассматриваются в лабораторной
+работе №2;</p></li>
+<li><p><code>f"...{expr}..."</code> — f-строка, аналог
+<code>std::format</code>;</p></li>
+<li><p>функция <code>main</code> не обязательна: код модуля выполняется
+сверху вниз. Условие <code>__name__ == "__main__"</code> истинно, только
+если файл запущен как скрипт, а не импортирован из другого
+модуля.</p></li>
+</ul>
+<p>Стиль кода на Python описан в документе <a
+href="https://peps.python.org/pep-0008/">PEP 8</a>:
+<code>snake_case</code> для функций и переменных, <code>CamelCase</code>
+для классов, <code>UPPER_CASE</code> для констант.</p>
+<h2 data-number="3.2" id="переменные-объекты-и-ссылки"><span
+class="header-section-number">3.2</span> Переменные, объекты и
+ссылки</h2>
+<p>В C++ переменная обозначает область памяти определённого типа. В
+Python переменная — это <strong>имя, связанное с объектом</strong>. Тип
+принадлежит объекту, а не имени, и одно имя может быть повторно связано
+с объектом другого типа.</p>
+<div class="sourceCode" id="cb10" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">42</span>          <span class="co"># имя x связано с объектом int</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="st">&quot;строка&quot;</span>    <span class="co"># теперь -- с объектом str</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> a           <span class="co"># копирования нет: a и b -- два имени одного списка</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>b.append(<span class="dv">4</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(a)        <span class="co"># [1, 2, 3, 4]</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> a.copy()    <span class="co"># явная (поверхностная) копия</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(a <span class="op">==</span> c, a <span class="kw">is</span> c)   <span class="co"># True False: == сравнивает значения, is -- идентичность</span></span></code></pre></div>
+<p>Семантику переменных Python удобно представлять через
+<code>std::shared_ptr&lt;Object&gt;</code> в C++: присваивание копирует
+ссылку, а не объект. Память освобождается автоматически (подсчёт ссылок
+и сборщик циклов). Аргументы функций также передаются по ссылке.</p>
+<p>Объекты делятся на <strong>изменяемые</strong> (<code>list</code>,
+<code>dict</code>, <code>set</code>, большинство пользовательских
+классов) и <strong>неизменяемые</strong> (<code>int</code>,
+<code>float</code>, <code>str</code>, <code>tuple</code>,
+<code>bytes</code>, <code>frozenset</code>). Содержимое неизменяемого
+объекта изменить нельзя — можно только создать новый объект:</p>
+<div class="sourceCode" id="cb11" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> <span class="st">&quot;abc&quot;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>s <span class="op">+=</span> <span class="st">&quot;d&quot;</span>        <span class="co"># создаётся новая строка &quot;abcd&quot;, имя s связывается с ней</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># s[0] = &quot;X&quot;    # TypeError: &#39;str&#39; object does not support item assignment</span></span></code></pre></div>
+<h2 data-number="3.3" id="встроенные-типы"><span
+class="header-section-number">3.3</span> Встроенные типы</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Тип</strong></th>
+<th style="text-align: left;"><strong>Описание</strong></th>
+<th style="text-align: left;"><strong>Аналог в C++</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">целое <em>произвольной</em> длины, без
+переполнения</td>
+<td style="text-align: left;"><code>long long</code> без границ</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: left;">число с плавающей точкой двойной
+точности</td>
+<td style="text-align: left;"><code>double</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>True</code> / <code>False</code>
+(подкласс <code>int</code>)</td>
+<td style="text-align: left;"><code>bool</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">неизменяемая строка символов Unicode</td>
+<td style="text-align: left;"><code>std::u32string</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>bytes</code></td>
+<td style="text-align: left;">неизменяемая последовательность
+байтов</td>
+<td
+style="text-align: left;"><code>std::vector&lt;uint8_t&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">отсутствие значения, единственный объект
+своего типа</td>
+<td style="text-align: left;"><code>nullptr</code> /
+<code>std::nullopt</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>list</code></td>
+<td style="text-align: left;">динамический массив ссылок на объекты</td>
+<td
+style="text-align: left;"><code>std::vector&lt;Object*&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>tuple</code></td>
+<td style="text-align: left;">неизменяемая последовательность
+фиксированной длины</td>
+<td style="text-align: left;"><code>std::tuple</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>dict</code></td>
+<td style="text-align: left;">хеш-таблица, сохраняющая порядок
+вставки</td>
+<td style="text-align: left;"><code>std::unordered_map</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>set</code></td>
+<td style="text-align: left;">хеш-множество</td>
+<td style="text-align: left;"><code>std::unordered_set</code></td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb12" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dv">7</span> <span class="op">/</span> <span class="dv">2</span>       <span class="co"># 3.5   -- деление всегда даёт float</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dv">7</span> <span class="op">//</span> <span class="dv">2</span>      <span class="co"># 3     -- целочисленное деление с округлением вниз</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="op">-</span><span class="dv">7</span> <span class="op">//</span> <span class="dv">2</span>     <span class="co"># -4    -- в C++ результат равен -3</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="op">-</span><span class="dv">7</span> <span class="op">%</span> <span class="dv">2</span>      <span class="co"># 1     -- знак остатка совпадает со знаком делителя</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span> <span class="op">**</span> <span class="dv">10</span>     <span class="co"># 1024  -- возведение в степень</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="bu">int</span>(<span class="st">&quot;42&quot;</span>), <span class="bu">float</span>(<span class="st">&quot;3.14&quot;</span>), <span class="bu">str</span>(<span class="dv">42</span>)   <span class="co"># преобразования типов</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(<span class="st">&quot;Минск&quot;</span>)                        <span class="co"># 5 символов</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(<span class="st">&quot;Минск&quot;</span>.encode(<span class="st">&quot;utf-8&quot;</span>))        <span class="co"># 10 байт в кодировке UTF-8</span></span></code></pre></div>
+<h2 data-number="3.4" id="строки"><span
+class="header-section-number">3.4</span> Строки</h2>
+<div class="sourceCode" id="cb13" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> <span class="st">&quot;Hello, World&quot;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>s.lower(), s.upper()            <span class="co"># &#39;hello, world&#39;, &#39;HELLO, WORLD&#39;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>s.split(<span class="st">&quot;, &quot;</span>)                   <span class="co"># [&#39;Hello&#39;, &#39;World&#39;]</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;key=value&quot;</span>.partition(<span class="st">&quot;=&quot;</span>)      <span class="co"># (&#39;key&#39;, &#39;=&#39;, &#39;value&#39;)</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;  text </span><span class="ch">\n</span><span class="co">&quot;</span>.strip()             <span class="co"># &#39;text&#39;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;, &quot;</span>.join([<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>])      <span class="co"># &#39;a, b, c&#39;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>s.startswith(<span class="st">&quot;He&quot;</span>), <span class="st">&quot;or&quot;</span> <span class="kw">in</span> s   <span class="co"># True True</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>s.find(<span class="st">&quot;o&quot;</span>), s.replace(<span class="st">&quot;l&quot;</span>, <span class="st">&quot;L&quot;</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="ss">f&quot;</span><span class="sc">{</span><span class="fl">3.14159</span><span class="sc">:.2f}</span><span class="ss">&quot;</span>, <span class="ss">f&quot;</span><span class="sc">{</span><span class="dv">42</span><span class="sc">:&gt;6}</span><span class="ss">&quot;</span>    <span class="co"># &#39;3.14&#39;, &#39;    42&#39;</span></span></code></pre></div>
+<p>Поскольку строки неизменяемы, операция <code>s += x</code> в цикле на
+каждой итерации создаёт новую строку. Для объединения большого числа
+фрагментов их накапливают в списке и объединяют вызовом
+<code>"".join(parts)</code>.</p>
+<h2 data-number="3.5" id="коллекции"><span
+class="header-section-number">3.5</span> Коллекции</h2>
+<div class="sourceCode" id="cb14" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> [<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>xs.append(<span class="dv">5</span>)            <span class="co"># добавление в конец, амортизированно O(1)</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>xs.pop()                <span class="co"># удаление с конца, O(1)</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>xs.insert(<span class="dv">0</span>, <span class="dv">10</span>)        <span class="co"># вставка, O(n)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>xs.sort()               <span class="co"># сортировка на месте</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>ys <span class="op">=</span> <span class="bu">sorted</span>(xs, reverse<span class="op">=</span><span class="va">True</span>)   <span class="co"># новый отсортированный список</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>xs[<span class="dv">0</span>], xs[<span class="op">-</span><span class="dv">1</span>]           <span class="co"># первый и последний элементы</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>xs[<span class="dv">1</span>:<span class="dv">3</span>], xs[::<span class="op">-</span><span class="dv">1</span>]       <span class="co"># срезы [start:stop:step] создают копию части списка</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>point <span class="op">=</span> (<span class="fl">1.0</span>, <span class="fl">2.0</span>)      <span class="co"># кортеж</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> point            <span class="co"># распаковка</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>a, b <span class="op">=</span> b, a             <span class="co"># обмен значений без временной переменной</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>ages <span class="op">=</span> {<span class="st">&quot;Анна&quot;</span>: <span class="dv">19</span>, <span class="st">&quot;Борис&quot;</span>: <span class="dv">20</span>}</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>ages[<span class="st">&quot;Вера&quot;</span>] <span class="op">=</span> <span class="dv">18</span>       <span class="co"># вставка или перезапись</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>ages.get(<span class="st">&quot;Глеб&quot;</span>)        <span class="co"># None, если ключ отсутствует (ages[&quot;Глеб&quot;] -- KeyError)</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>ages.get(<span class="st">&quot;Глеб&quot;</span>, <span class="dv">0</span>)     <span class="co"># значение по умолчанию</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;Анна&quot;</span> <span class="kw">in</span> ages          <span class="co"># проверка наличия ключа, в среднем O(1)</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, age <span class="kw">in</span> ages.items():</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name, age)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>seen <span class="op">=</span> {<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>}</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>seen.add(<span class="dv">2</span>)             <span class="co"># множество не изменится</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>seen <span class="op">&amp;</span> {<span class="dv">2</span>, <span class="dv">5</span>}, seen <span class="op">|</span> {<span class="dv">5</span>}   <span class="co"># пересечение, объединение</span></span></code></pre></div>
+<p>Ключом словаря и элементом множества может быть только
+<em>хешируемый</em> объект — как правило, неизменяемый:
+<code>int</code>, <code>str</code>, <code>tuple</code> из хешируемых
+элементов. Список не может быть ключом словаря.</p>
+<h2 data-number="3.6" id="управляющие-конструкции"><span
+class="header-section-number">3.6</span> Управляющие конструкции</h2>
+<div class="sourceCode" id="cb15" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> x <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> <span class="kw">not</span> done:          <span class="co"># and, or, not вместо &amp;&amp;, ||, !</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    ...                         <span class="co"># ... (или pass) -- пустое тело блока</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="cf">elif</span> x <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):             <span class="co"># 0..9; в общем виде range(start, stop, step)</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, item <span class="kw">in</span> <span class="bu">enumerate</span>(items):    <span class="co"># индекс и элемент</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a, b <span class="kw">in</span> <span class="bu">zip</span>(xs, ys):        <span class="co"># параллельный обход двух последовательностей</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> n <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    n <span class="op">//=</span> <span class="dv">2</span>                     <span class="co"># операторов ++ и -- нет: n += 1</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>label <span class="op">=</span> <span class="st">&quot;чёт&quot;</span> <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">&quot;нечет&quot;</span>    <span class="co"># условное выражение</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="cf">match</span> command.split():          <span class="co"># сопоставление с образцом (Python 3.10+)</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    case [<span class="st">&quot;go&quot;</span>, direction]:</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>        move(direction)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    case [<span class="st">&quot;quit&quot;</span> <span class="op">|</span> <span class="st">&quot;exit&quot;</span>]:</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>        stop()</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> _:</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;неизвестная команда&quot;</span>)</span></code></pre></div>
+<p>Цикл <code>for</code> в Python всегда перебирает элементы коллекции,
+аналогично range-based for в C++11; конструкции вида
+<code>for (int i = 0; i &lt; n; ++i)</code> нет. Если помимо элемента
+требуется его индекс, используется <code>enumerate</code>, а не
+<code>range(len(xs))</code>.</p>
+<h2 data-number="3.7" id="генераторы-коллекций"><span
+class="header-section-number">3.7</span> Генераторы коллекций</h2>
+<p>Генераторы коллекций (comprehensions) — сокращённая запись построения
+коллекций:</p>
+<div class="sourceCode" id="cb16" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>squares <span class="op">=</span> [x <span class="op">*</span> x <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)]</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>evens   <span class="op">=</span> [x <span class="cf">for</span> x <span class="kw">in</span> xs <span class="cf">if</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>lengths <span class="op">=</span> {word: <span class="bu">len</span>(word) <span class="cf">for</span> word <span class="kw">in</span> words}       <span class="co"># словарь</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>letters <span class="op">=</span> {ch <span class="cf">for</span> ch <span class="kw">in</span> <span class="st">&quot;abracadabra&quot;</span>}              <span class="co"># множество</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>total   <span class="op">=</span> <span class="bu">sum</span>(x <span class="op">*</span> x <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>))             <span class="co"># без промежуточного списка</span></span></code></pre></div>
+<h2 data-number="3.8" id="функции"><span
+class="header-section-number">3.8</span> Функции</h2>
+<div class="sourceCode" id="cb17" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> power(base: <span class="bu">float</span>, exp: <span class="bu">int</span> <span class="op">=</span> <span class="dv">2</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:      <span class="co"># значение по умолчанию</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base <span class="op">**</span> exp</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>power(<span class="dv">3</span>), power(<span class="dv">3</span>, <span class="dv">3</span>), power(exp<span class="op">=</span><span class="dv">3</span>, base<span class="op">=</span><span class="dv">2</span>)         <span class="co"># позиционные и именованные аргументы</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mean(<span class="op">*</span>values: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:                  <span class="co"># произвольное число аргументов</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sum</span>(values) <span class="op">/</span> <span class="bu">len</span>(values)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>mean(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="ex">connect</span>(host: <span class="bu">str</span>, <span class="op">*</span>, timeout: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1.0</span>, <span class="op">**</span>options) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># аргументы после * передаются только по имени; **options -- словарь прочих</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(host, timeout, options)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="ex">connect</span>(<span class="st">&quot;bsu.by&quot;</span>, timeout<span class="op">=</span><span class="dv">5</span>, retries<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> min_max(xs: <span class="bu">list</span>[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">int</span>, <span class="bu">int</span>]:      <span class="co"># возврат нескольких значений</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">min</span>(xs), <span class="bu">max</span>(xs)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>lo, hi <span class="op">=</span> min_max([<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">4</span>])</span></code></pre></div>
+<p>Функции являются объектами: их можно присваивать переменным,
+передавать в другие функции и создавать в выражениях с помощью
+<code>lambda</code>:</p>
+<div class="sourceCode" id="cb18" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>words.sort(key<span class="op">=</span><span class="bu">len</span>)                         <span class="co"># сортировка по длине</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>pairs.sort(key<span class="op">=</span><span class="kw">lambda</span> p: (p[<span class="dv">1</span>], p[<span class="dv">0</span>]))      <span class="co"># по второму, затем по первому элементу</span></span></code></pre></div>
+<p>Значение аргумента по умолчанию вычисляется <strong>один
+раз</strong> — при определении функции. Изменяемое значение по умолчанию
+поэтому оказывается общим для всех вызовов:</p>
+<div class="sourceCode" id="cb19" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(item, bucket<span class="op">=</span>[]):       <span class="co"># ошибка</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    bucket.append(item)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> bucket</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>add(<span class="dv">1</span>)<span class="op">;</span> add(<span class="dv">2</span>)                  <span class="co"># второй вызов вернёт [1, 2]</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(item, bucket<span class="op">=</span><span class="va">None</span>):     <span class="co"># корректный вариант</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> bucket <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        bucket <span class="op">=</span> []</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    bucket.append(item)</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> bucket</span></code></pre></div>
+<h2 data-number="3.9" id="исключения"><span
+class="header-section-number">3.9</span> Исключения</h2>
+<div class="sourceCode" id="cb20" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> <span class="bu">int</span>(text)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> e:</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;не число: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;разбор выполнен без ошибок&quot;</span>)   <span class="co"># если исключения не было</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;выполняется всегда&quot;</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> count <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f&quot;count должен быть &gt;= 0, получено </span><span class="sc">{</span>count<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p>Часто используемые встроенные исключения: <code>ValueError</code>,
+<code>TypeError</code>, <code>KeyError</code>, <code>IndexError</code>,
+<code>FileNotFoundError</code>, <code>ZeroDivisionError</code>.
+Пользовательские исключения наследуются от <code>Exception</code>.</p>
+<p>В отличие от C++, где исключения принято использовать лишь для
+исключительных ситуаций, в Python они являются штатным механизмом
+управления потоком выполнения: например, цикл <code>for</code>
+завершается по исключению <code>StopIteration</code>. Стиль
+&lt;&lt;выполнить и обработать ошибку&gt;&gt; (EAFP, <em>easier to ask
+for forgiveness than permission</em>) считается в Python нормой.</p>
+<h2 data-number="3.10" id="работа-с-файлами"><span
+class="header-section-number">3.10</span> Работа с файлами</h2>
+<div class="sourceCode" id="cb21" data-language="Python"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;data.txt&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>) <span class="im">as</span> f:       <span class="co"># текстовый режим</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> f:                                  <span class="co"># построчное чтение</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(line.rstrip(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>))</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># здесь файл уже закрыт, даже если внутри блока возникло исключение</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;out.txt&quot;</span>, <span class="st">&quot;w&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    f.write(<span class="st">&quot;строка</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;data.txt&quot;</span>, <span class="st">&quot;rb&quot;</span>) <span class="im">as</span> f:                   <span class="co"># бинарный режим</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    chunk <span class="op">=</span> f.read(<span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">20</span>)                         <span class="co"># чтение до 1 МиБ -&gt; bytes</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> chunk.decode(<span class="st">&quot;utf-8&quot;</span>)                    <span class="co"># bytes -&gt; str</span></span></code></pre></div>
+<p>Конструкция <code>with</code> (контекстный менеджер) реализует идиому
+RAII: ресурс гарантированно освобождается при выходе из блока. В
+текстовом режиме байты файла декодируются в <code>str</code>; кодировку
+следует указывать явно (<code>encoding="utf-8"</code>), поскольку
+кодировка по умолчанию зависит от операционной системы.</p>
+<h2 data-number="3.11" id="соответствие-конструкций-c-и-python"><span
+class="header-section-number">3.11</span> Соответствие конструкций C++ и
+Python</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"><span
+class="roman"><strong>C++</strong></span></th>
+<th style="text-align: left;"><span
+class="roman"><strong>Python</strong></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: left;"><code>std::vector&lt;int&gt; v{1, 2};</code></td>
+<td style="text-align: left;"><code>v = [1, 2]</code></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>v.push_back(3); v.size();</code></td>
+<td style="text-align: left;"><code>v.append(3); len(v)</code></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>std::unordered_map&lt;K, V&gt; m;</code></td>
+<td style="text-align: left;"><code>m = {}</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>if (m.count(k))</code></td>
+<td style="text-align: left;"><code>if k in m:</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>for (auto&amp; x : v)</code></td>
+<td style="text-align: left;"><code>for x in v:</code></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>for (int i = 0; i &lt; n; ++i)</code></td>
+<td style="text-align: left;"><code>for i in range(n):</code></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>a &amp;&amp; b, a || b, !a</code></td>
+<td style="text-align: left;"><code>a and b, a or b, not a</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>x ? a : b</code></td>
+<td style="text-align: left;"><code>a if x else b</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nullptr</code></td>
+<td style="text-align: left;"><code>None</code></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>std::cout &lt;&lt; x &lt;&lt; ’\n’;</code></td>
+<td style="text-align: left;"><code>print(x)</code></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>std::getline(std::cin, s);</code></td>
+<td style="text-align: left;"><code>s = input()</code></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>std::stoi(s), std::to_string(x)</code></td>
+<td style="text-align: left;"><code>int(s), str(x)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>// комментарий</code></td>
+<td style="text-align: left;"><code># комментарий</code></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>throw std::runtime_error("...");</code></td>
+<td
+style="text-align: left;"><code>raise RuntimeError("...")</code></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>try {} catch (const E&amp; e) {}</code></td>
+<td
+style="text-align: left;"><code>try: ... except E as e: ...</code></td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="4" id="задание"><span
+class="header-section-number">4</span> Задание</h1>
+<p>Работа состоит из двух частей. Результат сдаётся в виде
+git-репозитория на GitHub (раздел <a href="#sec:git"
+data-reference-type="ref" data-reference="sec:git">2.4</a>);
+преподавателю направляется ссылка на репозиторий. Тот же репозиторий
+используется в последующих лабораторных работах.</p>
+<h2 data-number="4.1" id="часть-1.-создание-проекта"><span
+class="header-section-number">4.1</span> Часть 1. Создание проекта</h2>
+<ol>
+<li><p><a href="#sec:uv-install">Установить <code>uv</code></a>
+(раздел <a href="#sec:uv" data-reference-type="ref"
+data-reference="sec:uv">2.3</a>) и Python 3.13
+(<code>uv python install 3.13</code>).</p></li>
+<li><p>Создать проект командой <code>uv init --python 3.13</code>,
+скопировать в него каталог <code>data/</code> из материалов работы и
+выполнить первый коммит.</p></li>
+<li><p>Дополнить <code>.gitignore</code> так, чтобы в репозиторий не
+попадали каталог <code>.venv</code> и сгенерированные файлы с
+данными.</p></li>
+<li><p>Создать репозиторий на GitHub (публичный либо приватный с
+доступом для преподавателя) и отправить в него проект. В ходе дальнейшей
+работы изменения фиксируются отдельными коммитами и регулярно
+отправляются командой <code>git push</code>.</p></li>
+<li><p>Итоговая структура проекта:</p>
+<pre class="text" data-language="text"><code>lab1/
+├── .gitignore
+├── .python-version
+├── pyproject.toml
+├── uv.lock
+├── data/              # материалы работы (генератор, примеры, check.py)
+├── README.md          # инструкция по запуску
+└── main.py            # решение задачи из части 2</code></pre></li>
+<li><p>Все функции снабжаются аннотациями типов; имена соответствуют
+PEP 8.</p></li>
+</ol>
+<h2 data-number="4.2" id="часть-2.-задача-миллиард-строк"><span
+class="header-section-number">4.2</span> Часть 2. Задача «Миллиард
+строк»</h2>
+<p>В 2024 году в Java-сообществе проводился конкурс <a
+href="https://github.com/gunnarmorling/1brc">One Billion Row
+Challenge</a>: требовалось как можно быстрее обработать текстовый файл
+из миллиарда строк с измерениями температуры. Задача проста по
+формулировке, однако при таком объёме данных каждая лишняя операция в
+цикле обработки обходится в секунды. В данной работе требуется
+корректное решение задачи на Python. Решение может быть любой сложности,
+в том числе с использованием многопоточности и различных механизмов
+операционной системы, но без сторонних библиотек. Данные темы также
+будут затронуты только в последующих лабораторных работах.</p>
+<h3 class="unnumbered" id="входные-данные">Входные данные</h3>
+<p>f Текстовый файл в кодировке UTF-8; каждая строка имеет вид
+<code>&lt;станция&gt;;&lt;температура&gt;</code>:</p>
+<pre class="text" data-language="text"><code>Minsk;7.3
+Hamburg;12.0
+Zürich;-3.4
+Bulawayo;8.9
+Palembang;38.8</code></pre>
+<p>Гарантируется, что:</p>
+<ul>
+<li><p>название станции — непустая строка длиной не более 100 байт в
+UTF-8, не содержащая символов <code>;</code> и <code>\n</code>;</p></li>
+<li><p>температура — число от
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>99.9</mn></mrow><annotation encoding="application/x-tex">-99.9</annotation></semantics></math>
+до
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>99.9</mn><annotation encoding="application/x-tex">99.9</annotation></semantics></math>
+ровно с одним знаком после точки;</p></li>
+<li><p>число различных станций не превышает 10 000;</p></li>
+<li><p>каждая строка, включая последнюю, завершается символом
+<code>\n</code>.</p></li>
+</ul>
+<h3 class="unnumbered" id="выходные-данные">Выходные данные</h3>
+<p>Для каждой станции вычисляются минимальная, средняя и максимальная
+температура. Результат выводится по одной строке на станцию в формате
+<code>&lt;станция&gt;;&lt;min&gt;;&lt;mean&gt;;&lt;max&gt;</code>:</p>
+<pre class="text" data-language="text"><code>Abha;-0.8;18.3;48.0
+Abidjan;-5.2;24.4;54.4
+...
+Zürich;-22.6;9.8;36.6
+İzmir;-7.3;17.2;44.7</code></pre>
+<ul>
+<li><p>станции упорядочены по названию встроенной функцией
+<code>sorted</code> (сравнение строк по кодам символов Unicode, поэтому,
+например, <code>İzmir</code> следует после
+<code>Zürich</code>);</p></li>
+<li><p>каждое число выводится ровно с одним знаком после точки;</p></li>
+<li><p>среднее значение округляется до десятых по правилу
+&lt;&lt;половина вверх&gt;&gt;:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mn>10</mn><mo>⋅</mo><mtext mathvariant="normal">mean</mtext><mo>+</mo><mn>0.5</mn><mo stretchy="false" form="postfix">⌋</mo><mi>/</mi><mn>10</mn></mrow><annotation encoding="application/x-tex">\lfloor 10\cdot\text{mean} + 0.5\rfloor / 10</annotation></semantics></math>,
+т. е.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.25</mn><mo>→</mo><mn>1.3</mn></mrow><annotation encoding="application/x-tex">1.25 \to 1.3</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1.25</mn><mo>→</mo><mi>−</mi><mn>1.2</mn></mrow><annotation encoding="application/x-tex">-1.25 \to -1.2</annotation></semantics></math>.</p></li>
+</ul>
+<h3 class="unnumbered" id="материалы">Материалы</h3>
+<p>Каталог <code>data/</code> содержит:</p>
+<ul>
+<li><p><code>generate_measurements.py</code> — генератор входных файлов.
+Файлы объёмом в миллионы строк в репозиторий не добавляются и
+генерируются локально:</p>
+<div class="sourceCode" id="cb25" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv run data/generate_measurements.py 10_000_000 <span class="at">-o</span> measurements_10m.txt</span></code></pre></div>
+<p>Генератор детерминирован: при одинаковых значениях <code>N</code> и
+<code>--seed</code> создаётся один и тот же файл. Ориентировочный
+размер: 10 млн строк — около 140 МБ, 100 млн — 1<span>,</span>4 ГБ,
+1 млрд — 14 ГБ;</p></li>
+<li><p><code>weather_stations.csv</code> — список станций со
+среднегодовыми температурами, используемый генератором;</p></li>
+<li><p><code>measurements_1k.txt</code>,
+<code>measurements_100k.txt</code> — небольшие входные файлы для
+отладки; <code>*.out</code> — эталонные результаты для них;</p></li>
+<li><p><code>check.py</code> — программа проверки результата:</p>
+<div class="sourceCode" id="cb26" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv run main.py data/measurements_100k.txt <span class="dt">\</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">|</span> <span class="ex">python</span> data/check.py data/measurements_100k.out</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="ex">OK</span></span></code></pre></div></li>
+</ul>
+<h3 class="unnumbered" id="требования-к-решению">Требования к
+решению</h3>
+<ol>
+<li><p><strong>Программа</strong> <code>main.py</code> принимает путь к
+файлу и выводит результат:</p>
+<div class="sourceCode" id="cb27" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> uv run main.py measurements_10m.txt</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Abha</span><span class="kw">;</span><span class="ex">-0.8</span><span class="kw">;</span><span class="ex">18.3</span><span class="kw">;</span><span class="ex">48.0</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Abidjan</span><span class="kw">;</span><span class="ex">-5.2</span><span class="kw">;</span><span class="ex">24.4</span><span class="kw">;</span><span class="ex">54.4</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span></code></pre></div></li>
+<li><p><strong>Объём данных.</strong> Программа обрабатывает файл из
+100 млн строк (около 1<span>,</span>4 ГБ); объём используемой памяти не
+зависит от размера входного файла.</p></li>
+<li><p><strong>Ошибки.</strong> При отсутствии аргументов или
+несуществующем файле программа выводит сообщение об ошибке в
+<code>stderr</code> и завершается с ненулевым кодом возврата, без вывода
+трассировки стека.</p></li>
+<li><p><strong>Корректность.</strong> Результат совпадает с эталоном на
+файлах <code>measurements_1k</code> и <code>measurements_100k</code>
+(<code>check.py</code> выводит <code>OK</code>).</p></li>
+</ol>
+<h1 data-number="5" id="порядок-сдачи"><span
+class="header-section-number">5</span> Порядок сдачи</h1>
+<p>До защиты преподавателю направляется ссылка на репозиторий GitHub.
+Доступность ссылки проверяется без входа в учётную запись (например, в
+приватном окне браузера); для приватного репозитория проверяется наличие
+преподавателя в списке Collaborators. Сданное состояние репозитория
+помечается тегом <code>lab1</code>; проверке подлежит именно оно:</p>
+<div class="sourceCode" id="cb28" data-language="bash"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git tag lab1</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git push origin lab1</span></code></pre></div>
+<p>На защите студент:</p>
+<ol>
+<li><p>демонстрирует репозиторий и историю коммитов; в репозитории
+отсутствуют <code>.venv</code> и файлы с данными большого объёма,
+присутствует <code>uv.lock</code>;</p></li>
+<li><p>клонирует репозиторий в пустой каталог и запускает программу
+командой <code>uv run</code> без дополнительной настройки;</p></li>
+<li><p>запускает <code>check.py</code> на файле
+<code>measurements_100k</code>;</p></li>
+<li><p>отвечает на вопросы по коду.</p></li>
+</ol>
+<h2 class="unnumbered" id="возможные-вопросы">Возможные вопросы</h2>
+<ol>
+<li><p>Что такое коммит? Каково назначение команд <code>git add</code>,
+<code>git commit</code>, <code>git push</code>? Для чего нужен файл
+<code>.gitignore</code>?</p></li>
+<li><p>Для чего используются виртуальные окружения? Что содержит каталог
+<code>.venv</code> и почему он не добавляется в репозиторий? Чем
+<code>uv.lock</code> отличается от списка зависимостей в
+<code>pyproject.toml</code>?</p></li>
+<li><p>Каков результат выполнения <code>b = a; b.append(1)</code>, если
+<code>a</code> — список? Каков результат <code>b = a; b += 1</code>,
+если <code>a</code> — число? Чем объясняется различие?</p></li>
+<li><p>Чем различаются операторы <code>==</code> и <code>is</code>? В
+каких случаях уместно <code>is</code>?</p></li>
+<li><p>Какие объекты могут быть ключами словаря и почему?</p></li>
+<li><p>В чём состоит проблема изменяемого значения аргумента по
+умолчанию? Как её избежать?</p></li>
+<li><p>Проверяет ли интерпретатор аннотации типов во время выполнения?
+Для чего они используются?</p></li>
+<li><p>Чем различаются текстовый и бинарный режимы открытия файла? Каким
+образом в решении организовано чтение файла?</p></li>
+<li><p>Каким образом в решении обеспечено округление среднего значения
+по заданному правилу?</p></li>
+</ol>
+<h2 class="unnumbered" id="источники">Источники</h2>
+<ul>
+<li><p>Официальное руководство по Python: <a
+href="https://docs.python.org/3.13/tutorial/"
+class="uri">https://docs.python.org/3.13/tutorial/</a></p></li>
+<li><p>Документация uv: <a href="https://docs.astral.sh/uv/"
+class="uri">https://docs.astral.sh/uv/</a></p></li>
+<li><p>PEP 8 — руководство по стилю кода: <a
+href="https://peps.python.org/pep-0008/"
+class="uri">https://peps.python.org/pep-0008/</a></p></li>
+<li><p>Pro Git (книга о git, есть перевод на русский язык): <a
+href="https://git-scm.com/book/ru/v2"
+class="uri">https://git-scm.com/book/ru/v2</a></p></li>
+<li><p>One Billion Row Challenge: <a
+href="https://github.com/gunnarmorling/1brc"
+class="uri">https://github.com/gunnarmorling/1brc</a></p></li>
+</ul>
+</main>
+</div>
+<script>
+(function () {
+  // Кнопка «Копировать» у каждого блока кода.
+  // В блоках командной строки копируются только команды, без приглашения "$ " и вывода.
+  var PROMPT = /^(?:\(\.venv\) )?[$>] /;
+
+  function textFor(block) {
+    var code = block.querySelector("code");
+    var text = code.textContent.replace(/\n$/, "");
+    if (block.getAttribute("data-language") === "bash") {
+      var lines = text.split("\n");
+      if (lines.some(function (l) { return PROMPT.test(l); })) {
+        text = lines
+          .filter(function (l) { return PROMPT.test(l); })
+          .map(function (l) { return l.replace(PROMPT, ""); })
+          .join("\n");
+      }
+    }
+    return text + "\n";
+  }
+
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand("copy"); } finally { document.body.removeChild(area); }
+    return Promise.resolve();
+  }
+
+  document.querySelectorAll("div.sourceCode").forEach(function (block) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "copy-btn";
+    btn.textContent = "Копировать";
+    btn.addEventListener("click", function () {
+      copy(textFor(block)).then(function () {
+        btn.textContent = "Скопировано";
+        btn.classList.add("done");
+        setTimeout(function () { btn.textContent = "Копировать"; btn.classList.remove("done"); }, 1500);
+      });
+    });
+    block.appendChild(btn);
+  });
+
+  // Переключатель темы: авто -> светлая -> тёмная.
+  var modes = ["auto", "light", "dark"];
+  var names = { auto: "авто", light: "светлая", dark: "тёмная" };
+  var toggle = document.getElementById("theme-toggle");
+  function apply(mode) {
+    if (mode === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", mode);
+    toggle.textContent = "Тема: " + names[mode];
+  }
+  var current = "auto";
+  try { current = localStorage.getItem("theme") || "auto"; } catch (e) {}
+  apply(current);
+  toggle.addEventListener("click", function () {
+    current = modes[(modes.indexOf(current) + 1) % modes.length];
+    apply(current);
+    try { localStorage.setItem("theme", current); } catch (e) {}
+  });
+
+  // На узком экране оглавление свёрнуто по умолчанию.
+  if (window.matchMedia("(max-width: 900px)").matches) {
+    document.querySelector("nav#toc details").removeAttribute("open");
+  }
+})();
+</script>
+</body>
+</html>
